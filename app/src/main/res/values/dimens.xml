@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- activity_main.xml -->
+    <dimen name="image_height">270dp</dimen>
+
+</resources>
