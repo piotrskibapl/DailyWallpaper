@@ -32,14 +32,19 @@ public class NetworkUtils {
     private final static String VALUE_SAFE_SEARCH = "true";
     private final static String VALUE_PER_PAGE = "200";
 
-    public static URL buildUrl(){
-        Uri uri = Uri.parse(BASE_API_URL).buildUpon()
+    public static URL buildUrl(String category){
+        Uri.Builder uriBuilder = Uri.parse(BASE_API_URL).buildUpon()
                 .appendQueryParameter(PARAM_API_KEY, API_KEY)
                 .appendQueryParameter(PARAM_ORIENTATION, VALUE_ORIENTATION)
                 .appendQueryParameter(PARAM_EDITORS_CHOICE, VALUE_EDITORS_CHOICE)
                 .appendQueryParameter(PARAM_SAFE_SEARCH, VALUE_SAFE_SEARCH)
-                .appendQueryParameter(PARAM_PER_PAGE, VALUE_PER_PAGE)
-                .build();
+                .appendQueryParameter(PARAM_PER_PAGE, VALUE_PER_PAGE);
+
+        if(category != null){
+            uriBuilder.appendQueryParameter(PARAM_CATEGORY, category);
+        }
+
+        Uri uri = uriBuilder.build();
 
         URL builtUrl = null;
 

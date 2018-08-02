@@ -1,3 +1,47 @@
 <resources>
     <string name="app_name">DailyWallpaper</string>
+
+    <string name="category_all">All categories</string>
+    <string name="category_fashion">Fashion</string>
+    <string name="category_nature">Nature</string>
+    <string name="category_backgrounds">Backgrounds</string>
+    <string name="category_science">Science</string>
+    <string name="category_education">Education</string>
+    <string name="category_people">People</string>
+    <string name="category_feelings">Feelings</string>
+    <string name="category_religion">Religion</string>
+    <string name="category_health">Health</string>
+    <string name="category_places">Places</string>
+    <string name="category_animals">Animals</string>
+    <string name="category_industry">Industry</string>
+    <string name="category_food">Food</string>
+    <string name="category_computer">Computer</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_transportation">Transportation</string>
+    <string name="category_travel">Travel</string>
+    <string name="category_buildings">Buildings</string>
+    <string name="category_business">Business</string>
+    <string name="category_music">Music</string>
+
+    <string name="key_category_fashion" translatable="false">fashion</string>
+    <string name="key_category_nature" translatable="false">nature</string>
+    <string name="key_category_backgrounds" translatable="false">backgrounds</string>
+    <string name="key_category_science" translatable="false">science</string>
+    <string name="key_category_education" translatable="false">education</string>
+    <string name="key_category_people" translatable="false">people</string>
+    <string name="key_category_feelings" translatable="false">feelings</string>
+    <string name="key_category_religion" translatable="false">religion</string>
+    <string name="key_category_health" translatable="false">health</string>
+    <string name="key_category_places" translatable="false">places</string>
+    <string name="key_category_animals" translatable="false">animals</string>
+    <string name="key_category_industry" translatable="false">industry</string>
+    <string name="key_category_food" translatable="false">food</string>
+    <string name="key_category_computer" translatable="false">computer</string>
+    <string name="key_category_sports" translatable="false">sports</string>
+    <string name="key_category_transportation" translatable="false">transportation</string>
+    <string name="key_category_travel" translatable="false">travel</string>
+    <string name="key_category_buildings" translatable="false">buildings</string>
+    <string name="key_category_business" translatable="false">business</string>
+    <string name="key_category_music" translatable="false">music</string>
+
 </resources>

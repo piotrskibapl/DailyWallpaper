@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/item_category_all"
+            android:icon="@drawable/ic_category_all"
+            android:title="@string/category_all" />
+        <item
+            android:id="@+id/item_category_fashion"
+            android:icon="@drawable/ic_category_fashion"
+            android:title="@string/category_fashion" />
+        <item
+            android:id="@+id/item_category_nature"
+            android:icon="@drawable/ic_category_nature"
+            android:title="@string/category_nature" />
+        <item
+            android:id="@+id/item_category_backgrounds"
+            android:icon="@drawable/ic_category_backgrounds"
+            android:title="@string/category_backgrounds" />
+        <item
+            android:id="@+id/item_category_science"
+            android:icon="@drawable/ic_category_science"
+            android:title="@string/category_science" />
+        <item
+            android:id="@+id/item_category_education"
+            android:icon="@drawable/ic_category_education"
+            android:title="@string/category_education" />
+        <item
+            android:id="@+id/item_category_people"
+            android:icon="@drawable/ic_category_people"
+            android:title="@string/category_people" />
+        <item
+            android:id="@+id/item_category_feelings"
+            android:icon="@drawable/ic_category_feelings"
+            android:title="@string/category_feelings" />
+        <item
+            android:id="@+id/item_category_religion"
+            android:icon="@drawable/ic_category_religion"
+            android:title="@string/category_religion" />
+        <item
+            android:id="@+id/item_category_health"
+            android:icon="@drawable/ic_category_health"
+            android:title="@string/category_health" />
+        <item
+            android:id="@+id/item_category_places"
+            android:icon="@drawable/ic_category_places"
+            android:title="@string/category_places" />
+        <item
+            android:id="@+id/item_category_animals"
+            android:icon="@drawable/ic_category_animals"
+            android:title="@string/category_animals" />
+        <item
+            android:id="@+id/item_category_industry"
+            android:icon="@drawable/ic_category_industry"
+            android:title="@string/category_industry" />
+        <item
+            android:id="@+id/item_category_food"
+            android:icon="@drawable/ic_category_food"
+            android:title="@string/category_food" />
+        <item
+            android:id="@+id/item_category_computer"
+            android:icon="@drawable/ic_category_computer"
+            android:title="@string/category_computer" />
+        <item
+            android:id="@+id/item_category_sports"
+            android:icon="@drawable/ic_category_sports"
+            android:title="@string/category_sports" />
+        <item
+            android:id="@+id/item_category_transportation"
+            android:icon="@drawable/ic_category_transportation"
+            android:title="@string/category_transportation" />
+        <item
+            android:id="@+id/item_category_travel"
+            android:icon="@drawable/ic_category_travel"
+            android:title="@string/category_travel" />
+        <item
+            android:id="@+id/item_category_buildings"
+            android:icon="@drawable/ic_category_buildings"
+            android:title="@string/category_buildings" />
+        <item
+            android:id="@+id/item_category_business"
+            android:icon="@drawable/ic_category_business"
+            android:title="@string/category_business" />
+        <item
+            android:id="@+id/item_category_music"
+            android:icon="@drawable/ic_category_music"
+            android:title="@string/category_music" />
+
+    </group>
+</menu>

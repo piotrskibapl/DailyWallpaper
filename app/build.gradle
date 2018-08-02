@@ -45,4 +45,7 @@ dependencies {
 
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // required for navigation drawer
+    implementation 'com.android.support:design:27.1.1'
 }

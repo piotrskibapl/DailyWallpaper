@@ -13,7 +13,7 @@ import pl.piotrskiba.dailywallpaper.models.ImageList;
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils;
 import timber.log.Timber;
 
-public class FetchImagesAsyncTask extends AsyncTask<Void, Void, ImageList>{
+public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
 
     private final Context context;
     private final AsyncTaskCompleteListener<ImageList> listener;
@@ -29,10 +29,18 @@ public class FetchImagesAsyncTask extends AsyncTask<Void, Void, ImageList>{
     }
 
     @Override
-    protected ImageList doInBackground(Void... voids) {
+    protected ImageList doInBackground(String... strings) {
 
-        URL url = NetworkUtils.buildUrl();
-        Timber.d("Loading images from URL: %s", url.toString());
+        String category = null;
+
+        if(strings.length > 0)
+            category = strings[0];
+
+        URL url = NetworkUtils.buildUrl(category);
+        if(category == null)
+            Timber.d("Loading images from all categories, from URL: %s", url.toString());
+        else
+            Timber.d("Loading images from category %s, from URL: %s", category, url.toString());
 
         try {
             String json = NetworkUtils.getHttpResponse(url);
