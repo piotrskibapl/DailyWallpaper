@@ -50,7 +50,12 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
 
     @Override
     public void onImageListRetrieved(ImageList result) {
-        Timber.d("Loaded %d images", result.getHits().length);
-        mImageListAdapter.setData(result);
+        if(result != null) {
+            Timber.d("Loaded %d images", result.getHits().length);
+            mImageListAdapter.setData(result);
+        }
+        else{
+            Timber.w("No images loaded!");
+        }
     }
 }
