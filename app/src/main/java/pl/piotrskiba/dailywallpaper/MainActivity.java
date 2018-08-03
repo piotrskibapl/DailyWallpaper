@@ -1,5 +1,6 @@
 package pl.piotrskiba.dailywallpaper;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -18,10 +19,12 @@ import butterknife.ButterKnife;
 import pl.piotrskiba.dailywallpaper.adapters.ImageListAdapter;
 import pl.piotrskiba.dailywallpaper.asynctasks.FetchImagesAsyncTask;
 import pl.piotrskiba.dailywallpaper.interfaces.AsyncTaskCompleteListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener;
+import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements AsyncTaskCompleteListener<ImageList> {
+public class MainActivity extends AppCompatActivity implements AsyncTaskCompleteListener<ImageList>, ImageClickListener {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
     private ImageListAdapter mImageListAdapter;
     private GridLayoutManager layoutManager;
 
+    public static final String KEY_IMAGE = "image";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
         ButterKnife.bind(this);
 
         // setup RecyclerView
-        mImageListAdapter = new ImageListAdapter();
+        mImageListAdapter = new ImageListAdapter(this);
         mRecyclerView.setAdapter(mImageListAdapter);
         mRecyclerView.setHasFixedSize(true);
 
@@ -179,5 +184,13 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onImageClick(Image clickedImage) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(KEY_IMAGE, clickedImage);
+
+        startActivity(intent);
     }
 }

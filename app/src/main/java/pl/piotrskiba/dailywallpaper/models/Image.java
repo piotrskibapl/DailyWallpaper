@@ -1,6 +1,8 @@
 package pl.piotrskiba.dailywallpaper.models;
 
-public class Image {
+import java.io.Serializable;
+
+public class Image implements Serializable {
     private final int id;
     private final String pageURL;
     private final String type;
@@ -11,7 +13,7 @@ public class Image {
     private final String webformatURL;
     private final int webformatWidth;
     private final int webformatHeight;
-    private final String largeImageUrl;
+    private final String largeImageURL;
     private final int imageWidth;
     private final int imageHeight;
     private final int imageSize;
@@ -26,7 +28,7 @@ public class Image {
 
     public Image(int id, String pageURL, String type, String tags, String previewURL,
         int previewWidth, int previewHeight, String webformatURL, int webformatWidth,
-        int webformatHeight, String largeImageUrl, int imageWidth, int imageHeight, int imageSize,
+        int webformatHeight, String largeImageURL, int imageWidth, int imageHeight, int imageSize,
         int views, int downloads, int favorites, int likes, int comments, int user_id, String user, String userImageURL){
 
         this.id = id;
@@ -39,7 +41,7 @@ public class Image {
         this.webformatURL = webformatURL;
         this.webformatWidth = webformatWidth;
         this.webformatHeight = webformatHeight;
-        this.largeImageUrl = largeImageUrl;
+        this.largeImageURL = largeImageURL;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.imageSize = imageSize;
@@ -93,8 +95,8 @@ public class Image {
         return webformatHeight;
     }
 
-    public String getLargeImageUrl() {
-        return largeImageUrl;
+    public String getLargeImageURL() {
+        return largeImageURL;
     }
 
     public int getImageWidth() {

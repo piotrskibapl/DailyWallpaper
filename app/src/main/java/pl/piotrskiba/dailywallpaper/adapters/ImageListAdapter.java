@@ -13,12 +13,18 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.piotrskiba.dailywallpaper.R;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ImageViewHolder> {
 
     private ImageList mImageList;
+    private ImageClickListener clickListener;
+
+    public ImageListAdapter(ImageClickListener clickListener){
+        this.clickListener = clickListener;
+    }
 
     @NonNull
     @Override
@@ -48,7 +54,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
             return mImageList.getHits().length;
     }
 
-    public class ImageViewHolder extends RecyclerView.ViewHolder{
+    public class ImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         @BindView(R.id.iv_thumbnail)
         ImageView mThumbnail;
@@ -57,6 +63,15 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedPos = getAdapterPosition();
+            Image image = mImageList.getHits()[clickedPos];
+            clickListener.onImageClick(image);
         }
     }
 
