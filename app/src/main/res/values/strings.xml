@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">DailyWallpaper</string>
 
+    <!-- categories -->
     <string name="category_all">All categories</string>
     <string name="category_fashion">Fashion</string>
     <string name="category_nature">Nature</string>
@@ -23,6 +24,7 @@
     <string name="category_business">Business</string>
     <string name="category_music">Music</string>
 
+    <!-- category keys -->
     <string name="key_category_fashion" translatable="false">fashion</string>
     <string name="key_category_nature" translatable="false">nature</string>
     <string name="key_category_backgrounds" translatable="false">backgrounds</string>
@@ -43,5 +45,10 @@
     <string name="key_category_buildings" translatable="false">buildings</string>
     <string name="key_category_business" translatable="false">business</string>
     <string name="key_category_music" translatable="false">music</string>
+
+    <!-- info section -->
+    <string name="info_author">Author: %1$s</string>
+    <string name="info_downloads">Downloads: %1$d</string>
+    <string name="info_views">Views: %1$d</string>
 
 </resources>

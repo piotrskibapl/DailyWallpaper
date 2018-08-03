@@ -4,4 +4,7 @@
     <!-- activity_main.xml -->
     <dimen name="image_height">270dp</dimen>
 
+    <!-- activity_detail.xml -->
+    <dimen name="info_section_padding">8dp</dimen>
+
 </resources>

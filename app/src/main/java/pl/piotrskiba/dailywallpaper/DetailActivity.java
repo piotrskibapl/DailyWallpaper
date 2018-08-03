@@ -9,7 +9,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -25,8 +29,23 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
+    @BindView(R.id.toolbar_container)
+    FrameLayout mToolbarContainer;
+
     @BindView(R.id.iv_wallpaper)
     ImageView mImageView;
+
+    @BindView(R.id.info_section)
+    RelativeLayout mInfoSection;
+
+    @BindView(R.id.info_section_author)
+    TextView mAuthorTextView;
+
+    @BindView(R.id.info_section_downloads)
+    TextView mDownloadsTextView;
+
+    @BindView(R.id.info_section_views)
+    TextView mViewsTextView;
 
     private boolean hiddenBars = false;
 
@@ -48,6 +67,17 @@ public class DetailActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        // get status bar height
+        // source: https://gist.github.com/hamakn/8939eb68a920a6d7a498
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+
+        // set toolbar padding to be under status bar
+        mToolbarContainer.setPadding(0, statusBarHeight, 0, 0);
     }
 
     private void populateUi(){
@@ -55,9 +85,14 @@ public class DetailActivity extends AppCompatActivity {
         Picasso.get()
                 .load(mImage.getLargeImageURL())
                 .into(mImageView);
+
+        mAuthorTextView.setText(getString(R.string.info_author, mImage.getUser()));
+        mDownloadsTextView.setText(getString(R.string.info_downloads, mImage.getDownloads()));
+        mViewsTextView.setText(getString(R.string.info_views, mImage.getViews()));
+        Timber.d(getString(R.string.info_views, mImage.getViews()));
     }
 
-    private void hideBars(){
+    private void hideUiElements(){
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -67,12 +102,14 @@ public class DetailActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(uiOptions);
         }
 
-        mToolbar.animate().translationY(-mToolbar.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+        mToolbarContainer.animate().translationY(-mToolbarContainer.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+
+        mInfoSection.animate().translationY(mInfoSection.getHeight()).setInterpolator(new AccelerateInterpolator()).start();
 
         hiddenBars = true;
     }
 
-    private void showBars(){
+    private void showUiElements(){
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -82,15 +119,17 @@ public class DetailActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(uiOptions);
         }
 
-        mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+        mToolbarContainer.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+
+        mInfoSection.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
 
         hiddenBars = false;
     }
 
     public void onImageClick(View view){
         if(hiddenBars)
-            showBars();
+            showUiElements();
         else
-            hideBars();
+            hideUiElements();
     }
 }

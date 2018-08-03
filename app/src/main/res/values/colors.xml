@@ -5,4 +5,6 @@
     <color name="colorAccent">#a0a013</color>
 
     <color name="text">#fff</color>
+
+    <color name="details_overlay_color">#8c000000</color>
 </resources>
