@@ -1,4 +1,4 @@
-package pl.piotrskiba.dailywallpaper;
+package pl.piotrskiba.dailywallpaper.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.piotrskiba.dailywallpaper.R;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 

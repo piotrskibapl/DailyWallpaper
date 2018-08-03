@@ -15,6 +15,7 @@ import android.view.MenuItem;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.piotrskiba.dailywallpaper.adapters.ImageListAdapter;
 import pl.piotrskiba.dailywallpaper.asynctasks.FetchImagesAsyncTask;
 import pl.piotrskiba.dailywallpaper.interfaces.AsyncTaskCompleteListener;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
