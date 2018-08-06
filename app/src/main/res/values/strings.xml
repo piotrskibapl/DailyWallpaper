@@ -56,5 +56,5 @@
     <string name="wallpaper_set">Wallpaper set!</string>
     <string name="error_setting_wallpaper">Error setting wallpaper!</string>
 
-
+    <string name="no_internet">Could not connect to the Internet.\nPlease try again later.</string>
 </resources>

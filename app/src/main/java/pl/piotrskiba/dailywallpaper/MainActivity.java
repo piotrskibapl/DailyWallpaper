@@ -13,6 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +37,12 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
 
     @BindView(R.id.nav_view)
     NavigationView mNavigationView;
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+
+    @BindView(R.id.tv_no_internet)
+    TextView mNoInternetTextView;
 
     @BindView(R.id.rv_images)
     RecyclerView mRecyclerView;
@@ -160,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
     }
 
     public void loadImages(String category){
+        showLoadingIndicator();
         new FetchImagesAsyncTask(this, this).execute(category);
     }
 
@@ -169,9 +179,11 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
             Timber.d("Loaded %d images", result.getHits().length);
             mImageListAdapter.setData(result);
             layoutManager.scrollToPosition(0);
+            showDefaultLayout();
         }
         else{
             Timber.w("No images loaded!");
+            showNoInternetLayout();
         }
     }
 
@@ -192,5 +204,23 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
         intent.putExtra(KEY_IMAGE, clickedImage);
 
         startActivity(intent);
+    }
+
+    private void showDefaultLayout(){
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mNoInternetTextView.setVisibility(View.INVISIBLE);
+    }
+
+    private void showLoadingIndicator(){
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+        mNoInternetTextView.setVisibility(View.INVISIBLE);
+    }
+
+    private void showNoInternetLayout(){
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mNoInternetTextView.setVisibility(View.VISIBLE);
     }
 }

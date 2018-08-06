@@ -3,8 +3,11 @@
 
     <!-- activity_main.xml -->
     <dimen name="image_height">270dp</dimen>
+    <dimen name="no_internet_textview_padding">180dp</dimen>
 
     <!-- activity_detail.xml -->
     <dimen name="info_section_padding">8dp</dimen>
+
+    <dimen name="progressbar_size">40dp</dimen>
 
 </resources>
