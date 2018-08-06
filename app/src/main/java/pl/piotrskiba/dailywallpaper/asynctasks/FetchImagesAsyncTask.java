@@ -58,7 +58,7 @@ public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
 
     @Override
     protected void onPostExecute(ImageList imageList) {
-        listener.onImageListRetrieved(imageList);
+        listener.onTaskCompleted(imageList);
         super.onPostExecute(imageList);
     }
 }

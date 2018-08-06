@@ -51,4 +51,10 @@
     <string name="info_downloads">Downloads: %1$d</string>
     <string name="info_views">Views: %1$d</string>
 
+    <string name="set_as_wallpaper">Set as wallpaper</string>
+    <string name="setting_wallpaper">Setting wallpaper...</string>
+    <string name="wallpaper_set">Wallpaper set!</string>
+    <string name="error_setting_wallpaper">Error setting wallpaper!</string>
+
+
 </resources>
