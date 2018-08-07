@@ -1,7 +1,7 @@
 package pl.piotrskiba.dailywallpaper;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
     private GridLayoutManager layoutManager;
 
     public static final String KEY_IMAGE = "image";
+    public static final String KEY_IMAGE_LIST = "image_list";
 
-    private AppDatabase mDb;
-
+    private ImageList mImages;
     private ImageList mFavoriteImages;
 
     private String mSelectedCategory = null;
@@ -180,11 +180,17 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
                 }
         );
 
-        mDb = AppDatabase.getInstance(this);
+        setupViewModel();
 
-        loadImages();
+        if(savedInstanceState != null) {
+            mSelectedCategory = savedInstanceState.getString(Intent.EXTRA_TEXT);
+            mImages = (ImageList) savedInstanceState.getSerializable(KEY_IMAGE_LIST);
 
-        setupFavoriteImages();
+            onImageListLoaded(mImages);
+        }
+        else{
+            loadImages();
+        }
     }
 
     private void loadImages(){
@@ -202,10 +208,11 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         onImageListLoaded(mFavoriteImages);
     }
 
-    private void setupFavoriteImages(){
-        LiveData<List<ImageEntry>> imageEntryList = mDb.imageDao().loadAllImages();
+    private void setupViewModel(){
 
-        imageEntryList.observe(this, new Observer<List<ImageEntry>>() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
+        viewModel.getFavoriteImages().observe(this, new Observer<List<ImageEntry>>() {
             @Override
             public void onChanged(@Nullable List<ImageEntry> imageEntries) {
                 Image[] images = new Image[imageEntries.size()];
@@ -231,9 +238,10 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
 
     @Override
     public void onImageListLoaded(ImageList result) {
-        if(result != null) {
-            Timber.d("Loaded %d images", result.getHits().length);
-            mImageListAdapter.setData(result);
+        mImages = result;
+        if(mImages != null) {
+            Timber.d("Loaded %d images", mImages.getHits().length);
+            mImageListAdapter.setData(mImages);
             layoutManager.scrollToPosition(0);
             showDefaultLayout();
         }
@@ -278,5 +286,13 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         mRecyclerView.setVisibility(View.INVISIBLE);
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         mNoInternetTextView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(Intent.EXTRA_TEXT, mSelectedCategory);
+        outState.putSerializable(KEY_IMAGE_LIST, mImages);
+
+        super.onSaveInstanceState(outState);
     }
 }

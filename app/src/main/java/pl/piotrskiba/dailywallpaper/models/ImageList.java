@@ -1,6 +1,8 @@
 package pl.piotrskiba.dailywallpaper.models;
 
-public class ImageList {
+import java.io.Serializable;
+
+public class ImageList implements Serializable {
     private final int total;
     private final int totalHits;
     private final Image[] hits;
