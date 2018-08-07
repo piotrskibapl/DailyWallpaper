@@ -1,8 +1,11 @@
 package pl.piotrskiba.dailywallpaper;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,17 +20,21 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.piotrskiba.dailywallpaper.adapters.ImageListAdapter;
 import pl.piotrskiba.dailywallpaper.asynctasks.FetchImagesAsyncTask;
-import pl.piotrskiba.dailywallpaper.interfaces.AsyncTaskCompleteListener;
+import pl.piotrskiba.dailywallpaper.database.AppDatabase;
+import pl.piotrskiba.dailywallpaper.database.ImageEntry;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements AsyncTaskCompleteListener<ImageList>, ImageClickListener {
+public class MainActivity extends AppCompatActivity implements ImageListLoadedListener, ImageClickListener {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -50,6 +57,12 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
     private GridLayoutManager layoutManager;
 
     public static final String KEY_IMAGE = "image";
+
+    private AppDatabase mDb;
+
+    private ImageList mFavoriteImages;
+
+    private String mSelectedCategory = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,89 +105,132 @@ public class MainActivity extends AppCompatActivity implements AsyncTaskComplete
                         if(!item.isChecked()) {
                             item.setChecked(true);
 
-                            String category = null;
                             switch (item.getItemId()) {
+                                case R.id.item_category_favorite:
+                                    mSelectedCategory = getString(R.string.key_category_favorite);
+                                    break;
                                 case R.id.item_category_all:
-                                    category = null;
+                                    mSelectedCategory = null;
                                     break;
                                 case R.id.item_category_fashion:
-                                    category = getString(R.string.key_category_fashion);
+                                    mSelectedCategory = getString(R.string.key_category_fashion);
                                     break;
                                 case R.id.item_category_nature:
-                                    category = getString(R.string.key_category_nature);
+                                    mSelectedCategory = getString(R.string.key_category_nature);
                                     break;
                                 case R.id.item_category_backgrounds:
-                                    category = getString(R.string.key_category_backgrounds);
+                                    mSelectedCategory = getString(R.string.key_category_backgrounds);
                                     break;
                                 case R.id.item_category_science:
-                                    category = getString(R.string.key_category_science);
+                                    mSelectedCategory = getString(R.string.key_category_science);
                                     break;
                                 case R.id.item_category_education:
-                                    category = getString(R.string.key_category_education);
+                                    mSelectedCategory = getString(R.string.key_category_education);
                                     break;
                                 case R.id.item_category_people:
-                                    category = getString(R.string.key_category_people);
+                                    mSelectedCategory = getString(R.string.key_category_people);
                                     break;
                                 case R.id.item_category_feelings:
-                                    category = getString(R.string.key_category_feelings);
+                                    mSelectedCategory = getString(R.string.key_category_feelings);
                                     break;
                                 case R.id.item_category_religion:
-                                    category = getString(R.string.key_category_religion);
+                                    mSelectedCategory = getString(R.string.key_category_religion);
                                     break;
                                 case R.id.item_category_health:
-                                    category = getString(R.string.key_category_health);
+                                    mSelectedCategory = getString(R.string.key_category_health);
                                     break;
                                 case R.id.item_category_places:
-                                    category = getString(R.string.key_category_places);
+                                    mSelectedCategory = getString(R.string.key_category_places);
                                     break;
                                 case R.id.item_category_animals:
-                                    category = getString(R.string.key_category_animals);
+                                    mSelectedCategory = getString(R.string.key_category_animals);
                                     break;
                                 case R.id.item_category_industry:
-                                    category = getString(R.string.key_category_industry);
+                                    mSelectedCategory = getString(R.string.key_category_industry);
                                     break;
                                 case R.id.item_category_food:
-                                    category = getString(R.string.key_category_food);
+                                    mSelectedCategory = getString(R.string.key_category_food);
                                     break;
                                 case R.id.item_category_computer:
-                                    category = getString(R.string.key_category_computer);
+                                    mSelectedCategory = getString(R.string.key_category_computer);
                                     break;
                                 case R.id.item_category_sports:
-                                    category = getString(R.string.key_category_sports);
+                                    mSelectedCategory = getString(R.string.key_category_sports);
                                     break;
                                 case R.id.item_category_transportation:
-                                    category = getString(R.string.key_category_transportation);
+                                    mSelectedCategory = getString(R.string.key_category_transportation);
                                     break;
                                 case R.id.item_category_travel:
-                                    category = getString(R.string.key_category_travel);
+                                    mSelectedCategory = getString(R.string.key_category_travel);
                                     break;
                                 case R.id.item_category_buildings:
-                                    category = getString(R.string.key_category_buildings);
+                                    mSelectedCategory = getString(R.string.key_category_buildings);
                                     break;
                                 case R.id.item_category_business:
-                                    category = getString(R.string.key_category_business);
+                                    mSelectedCategory = getString(R.string.key_category_business);
                                     break;
                                 case R.id.item_category_music:
-                                    category = getString(R.string.key_category_music);
+                                    mSelectedCategory = getString(R.string.key_category_music);
                                     break;
                             }
-                            loadImages(category);
+                            loadImages();
                         }
                         return true;
                     }
                 }
         );
 
-        loadImages(null);
+        mDb = AppDatabase.getInstance(this);
+
+        loadImages();
+
+        setupFavoriteImages();
     }
 
-    public void loadImages(String category){
+    private void loadImages(){
         showLoadingIndicator();
-        new FetchImagesAsyncTask(this, this).execute(category);
+
+        if(mSelectedCategory != null && mSelectedCategory.equals(getString(R.string.key_category_favorite))){
+            loadFavoriteImages();
+        }
+        else {
+            new FetchImagesAsyncTask(this, this).execute(mSelectedCategory);
+        }
+    }
+
+    private void loadFavoriteImages(){
+        onImageListLoaded(mFavoriteImages);
+    }
+
+    private void setupFavoriteImages(){
+        LiveData<List<ImageEntry>> imageEntryList = mDb.imageDao().loadAllImages();
+
+        imageEntryList.observe(this, new Observer<List<ImageEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<ImageEntry> imageEntries) {
+                Image[] images = new Image[imageEntries.size()];
+
+                for(int i = 0; i < images.length; i++){
+                    ImageEntry imageEntry = imageEntries.get(i);
+                    images[i] = new Image(imageEntry.getImageId(), imageEntry.getPageURL(), imageEntry.getType(),
+                            imageEntry.getTags(), imageEntry.getPreviewURL(), imageEntry.getPreviewWidth(),
+                            imageEntry.getPreviewHeight(), imageEntry.getWebformatURL(), imageEntry.getWebformatWidth(),
+                            imageEntry.getWebformatHeight(), imageEntry.getLargeImageURL(), imageEntry.getImageWidth(),
+                            imageEntry.getImageHeight(), imageEntry.getImageSize(), imageEntry.getViews(),
+                            imageEntry.getDownloads(), imageEntry.getFavorites(), imageEntry.getLikes(),
+                            imageEntry.getComments(), imageEntry.getUser_id(), imageEntry.getUser(), imageEntry.getUserImageURL());
+                }
+
+                mFavoriteImages = new ImageList(images.length, images.length, images);
+
+                if(mSelectedCategory != null && mSelectedCategory.equals(getString(R.string.key_category_favorite)))
+                    loadFavoriteImages();
+            }
+        });
     }
 
     @Override
-    public void onTaskCompleted(ImageList result) {
+    public void onImageListLoaded(ImageList result) {
         if(result != null) {
             Timber.d("Loaded %d images", result.getHits().length);
             mImageListAdapter.setData(result);

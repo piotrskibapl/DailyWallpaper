@@ -1,6 +1,5 @@
 package pl.piotrskiba.dailywallpaper;
 
-import android.app.WallpaperManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -22,23 +21,31 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.piotrskiba.dailywallpaper.asynctasks.DeleteImageAsyncTask;
+import pl.piotrskiba.dailywallpaper.asynctasks.LoadImageEntryAsyncTask;
+import pl.piotrskiba.dailywallpaper.asynctasks.SaveImageAsyncTask;
 import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask;
-import pl.piotrskiba.dailywallpaper.interfaces.AsyncTaskCompleteListener;
+import pl.piotrskiba.dailywallpaper.database.AppDatabase;
+import pl.piotrskiba.dailywallpaper.database.ImageEntry;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageDeletedListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageSavedListener;
+import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import timber.log.Timber;
 
-public class DetailActivity extends AppCompatActivity implements AsyncTaskCompleteListener<Boolean> {
+public class DetailActivity extends AppCompatActivity implements WallpaperSetListener, ImageSavedListener, ImageEntryLoadedListener , ImageDeletedListener{
 
     Image mImage;
 
@@ -70,6 +77,10 @@ public class DetailActivity extends AppCompatActivity implements AsyncTaskComple
 
     Snackbar mSnackBar;
 
+    private AppDatabase mDb;
+
+    private ImageEntry mImageEntry;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,12 +88,17 @@ public class DetailActivity extends AppCompatActivity implements AsyncTaskComple
 
         ButterKnife.bind(this);
 
+        mDb = AppDatabase.getInstance(this);
+
         Intent parentIntent = getIntent();
         if(parentIntent.hasExtra(MainActivity.KEY_IMAGE)){
             mImage = (Image) parentIntent.getSerializableExtra(MainActivity.KEY_IMAGE);
 
             populateUi();
         }
+
+        // load image entry from db
+        new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
 
         // setup Toolbar
         setSupportActionBar(mToolbar);
@@ -155,6 +171,22 @@ public class DetailActivity extends AppCompatActivity implements AsyncTaskComple
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if(mImageEntry == null){
+            menu.findItem(R.id.action_favorite).setVisible(true);
+            menu.findItem(R.id.action_unfavorite).setVisible(false);
+        }
+        else{
+            menu.findItem(R.id.action_favorite).setVisible(false);
+            menu.findItem(R.id.action_unfavorite).setVisible(true);
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = new MenuInflater(this);
 
@@ -166,31 +198,51 @@ public class DetailActivity extends AppCompatActivity implements AsyncTaskComple
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_set_as_wallpaper){
-            Bitmap originalBitmap = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
+            if (mImageView.getDrawable() != null) {
+                Bitmap originalBitmap = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
+                // get screen dimensions
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
 
-            // get screen dimensions
-            Display display = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
+                // center crop the image
+                Bitmap bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, size.x, size.y);
 
-            // center crop the image
-            Bitmap bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, size.x, size.y);
+                // set image as wallpaper
+                new SetWallpaperAsyncTask(this, this).execute(bitmap);
 
-            // set image as wallpaper
-            new SetWallpaperAsyncTask(this, this).execute(bitmap);
-
-            if(mSnackBar != null)
-                mSnackBar.dismiss();
-            mSnackBar = Snackbar.make(mMainView, R.string.setting_wallpaper, Snackbar.LENGTH_LONG);
-            mSnackBar.show();
+                if (mSnackBar != null)
+                    mSnackBar.dismiss();
+                mSnackBar = Snackbar.make(mMainView, R.string.setting_wallpaper, Snackbar.LENGTH_LONG);
+                mSnackBar.show();
+            }
+            else{
+                Timber.e("originalBitmap was null while attempting to set a wallpaper");
+            }
 
             return true;
         }
+        else if(item.getItemId() == R.id.action_favorite){
+            Date date = new Date();
+            ImageEntry imageEntry = new ImageEntry(mImage.getId(), mImage.getPageURL(), mImage.getType(),
+                    mImage.getTags(), mImage.getPreviewURL(), mImage.getPreviewWidth(), mImage.getPreviewHeight(),
+                    mImage.getWebformatURL(), mImage.getWebformatWidth(), mImage.getWebformatHeight(),
+                    mImage.getLargeImageURL(), mImage.getImageWidth(), mImage.getImageHeight(),
+                    mImage.getImageSize(), mImage.getViews(), mImage.getDownloads(), mImage.getFavorites(),
+                    mImage.getLikes(), mImage.getComments(), mImage.getUser_id(), mImage.getUser(),
+                    mImage.getUserImageURL(), date);
+
+            new SaveImageAsyncTask(mDb, this).execute(imageEntry);
+        }
+        else if(item.getItemId() == R.id.action_unfavorite){
+            new DeleteImageAsyncTask(mDb, this).execute(mImageEntry);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onTaskCompleted(Boolean success) {
+    public void onWallpaperSet(Boolean success) {
         if(mSnackBar != null)
             mSnackBar.dismiss();
 
@@ -202,5 +254,32 @@ public class DetailActivity extends AppCompatActivity implements AsyncTaskComple
         }
 
         mSnackBar.show();
+    }
+
+    @Override
+    public void onImageSaved() {
+        Toast.makeText(this,"image saved", Toast.LENGTH_SHORT).show();
+        new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
+    }
+
+    @Override
+    public void onImageDeleted() {
+        Toast.makeText(this,"image deleted", Toast.LENGTH_SHORT).show();
+        mImageEntry = null;
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onImageEntryLoaded(ImageEntry imageEntry) {
+        mImageEntry = imageEntry;
+
+        if(mImageEntry == null){
+            Timber.d("image is not favorite");
+        }
+        else{
+            Timber.d("image is favorite");
+        }
+
+        invalidateOptionsMenu();
     }
 }

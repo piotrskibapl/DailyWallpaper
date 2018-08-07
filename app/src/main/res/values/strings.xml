@@ -2,6 +2,7 @@
     <string name="app_name">DailyWallpaper</string>
 
     <!-- categories -->
+    <string name="category_favorite">Favorites</string>
     <string name="category_all">All categories</string>
     <string name="category_fashion">Fashion</string>
     <string name="category_nature">Nature</string>
@@ -25,6 +26,7 @@
     <string name="category_music">Music</string>
 
     <!-- category keys -->
+    <string name="key_category_favorite" translatable="false">favorite</string>
     <string name="key_category_fashion" translatable="false">fashion</string>
     <string name="key_category_nature" translatable="false">nature</string>
     <string name="key_category_backgrounds" translatable="false">backgrounds</string>
@@ -55,6 +57,9 @@
     <string name="setting_wallpaper">Setting wallpaper...</string>
     <string name="wallpaper_set">Wallpaper set!</string>
     <string name="error_setting_wallpaper">Error setting wallpaper!</string>
+
+    <string name="set_as_favorite">Mark as favorite</string>
+    <string name="set_as_not_favorite">Mark as not favorite</string>
 
     <string name="no_internet">Could not connect to the Internet.\nPlease try again later.</string>
 </resources>

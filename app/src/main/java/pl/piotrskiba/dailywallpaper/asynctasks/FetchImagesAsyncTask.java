@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URL;
 
-import pl.piotrskiba.dailywallpaper.interfaces.AsyncTaskCompleteListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils;
 import timber.log.Timber;
@@ -16,9 +16,9 @@ import timber.log.Timber;
 public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
 
     private final Context context;
-    private final AsyncTaskCompleteListener<ImageList> listener;
+    private final ImageListLoadedListener listener;
 
-    public FetchImagesAsyncTask(Context context, AsyncTaskCompleteListener<ImageList> listener){
+    public FetchImagesAsyncTask(Context context, ImageListLoadedListener listener){
         this.context = context;
         this.listener = listener;
     }
@@ -58,7 +58,7 @@ public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
 
     @Override
     protected void onPostExecute(ImageList imageList) {
-        listener.onTaskCompleted(imageList);
+        listener.onImageListLoaded(imageList);
         super.onPostExecute(imageList);
     }
 }
