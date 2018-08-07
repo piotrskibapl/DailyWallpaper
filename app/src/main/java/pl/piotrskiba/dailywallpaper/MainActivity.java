@@ -103,9 +103,11 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         mDrawerLayout.closeDrawers();
                         if(!item.isChecked()) {
-                            item.setChecked(true);
-
                             switch (item.getItemId()) {
+                                case R.id.item_settings:
+                                    Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                                    startActivity(intent);
+                                    break;
                                 case R.id.item_category_favorite:
                                     mSelectedCategory = getString(R.string.key_category_favorite);
                                     break;
@@ -173,7 +175,9 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
                                     mSelectedCategory = getString(R.string.key_category_music);
                                     break;
                             }
-                            loadImages();
+
+                            if(item.getItemId() != R.id.item_settings)
+                                loadImages();
                         }
                         return true;
                     }

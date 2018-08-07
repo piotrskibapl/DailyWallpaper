@@ -1,13 +1,16 @@
 package pl.piotrskiba.dailywallpaper.asynctasks;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.URL;
 
+import pl.piotrskiba.dailywallpaper.R;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils;
@@ -36,7 +39,10 @@ public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
         if(strings.length > 0)
             category = strings[0];
 
-        URL url = NetworkUtils.buildUrl(category);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean safesearch = sharedPreferences.getBoolean(context.getString(R.string.pref_safesearch_key), true);
+
+        URL url = NetworkUtils.buildUrl(category, safesearch);
         if(category == null)
             Timber.d("Loading images from all categories, from URL: %s", url.toString());
         else

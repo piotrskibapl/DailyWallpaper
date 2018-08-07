@@ -1,6 +1,9 @@
 package pl.piotrskiba.dailywallpaper.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +13,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 import pl.piotrskiba.dailywallpaper.BuildConfig;
+import pl.piotrskiba.dailywallpaper.R;
 
 public class NetworkUtils {
 
@@ -29,15 +33,14 @@ public class NetworkUtils {
 
     private final static String VALUE_ORIENTATION = "vertical";
     private final static String VALUE_EDITORS_CHOICE = "true";
-    private final static String VALUE_SAFE_SEARCH = "true";
     private final static String VALUE_PER_PAGE = "200";
 
-    public static URL buildUrl(String category){
+    public static URL buildUrl(String category, boolean safesearch){
         Uri.Builder uriBuilder = Uri.parse(BASE_API_URL).buildUpon()
                 .appendQueryParameter(PARAM_API_KEY, API_KEY)
                 .appendQueryParameter(PARAM_ORIENTATION, VALUE_ORIENTATION)
                 .appendQueryParameter(PARAM_EDITORS_CHOICE, VALUE_EDITORS_CHOICE)
-                .appendQueryParameter(PARAM_SAFE_SEARCH, VALUE_SAFE_SEARCH)
+                .appendQueryParameter(PARAM_SAFE_SEARCH, String.valueOf(safesearch))
                 .appendQueryParameter(PARAM_PER_PAGE, VALUE_PER_PAGE);
 
         if(category != null){

@@ -2,16 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group
         android:id="@+id/nav_group1"
-        android:checkableBehavior="single">
+        android:checkableBehavior="none">
         <item
-            android:id="@+id/item_category_favorite"
-            android:icon="@drawable/ic_favorite"
-            android:title="@string/category_favorite" />
+            android:id="@+id/item_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings" />
     </group>
 
     <group
         android:id="@+id/nav_group2"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/item_category_favorite"
+            android:icon="@drawable/ic_not_favorite"
+            android:title="@string/category_favorite" />
         <item
             android:id="@+id/item_category_all"
             android:icon="@drawable/ic_category_all"

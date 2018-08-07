@@ -3,7 +3,7 @@
     package="pl.piotrskiba.dailywallpaper">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +24,9 @@
         <activity
             android:name=".DetailActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>
