@@ -7,7 +7,6 @@
         <item>@string/pref_interval_label_6h</item>
         <item>@string/pref_interval_label_12h</item>
         <item>@string/pref_interval_label_24h</item>
-        <item>@string/pref_interval_label_15s</item>
     </array>
     <array name="pref_interval_values">
         <item>@string/pref_interval_value_disabled</item>
@@ -16,7 +15,6 @@
         <item>@string/pref_interval_value_6h</item>
         <item>@string/pref_interval_value_12h</item>
         <item>@string/pref_interval_value_24h</item>
-        <item>@string/pref_interval_value_15s</item>
     </array>
 
     <array name="pref_category_labels">

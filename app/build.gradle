@@ -60,4 +60,7 @@ dependencies {
 
     // Preferences
     implementation "com.android.support:preference-v7:27.1.1"
+
+    // FirebaseJobDispatcher
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 }

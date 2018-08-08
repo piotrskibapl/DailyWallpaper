@@ -10,8 +10,8 @@
         android:defaultValue="@string/pref_interval_value_disabled"
         android:entries="@array/pref_interval_labels"
         android:entryValues="@array/pref_interval_values"
-        android:key="@string/pref_autowallpaper_key"
-        android:title="@string/pref_autowallpaper_title" />
+        android:key="@string/pref_interval_key"
+        android:title="@string/pref_interval_title" />
     <ListPreference
         android:defaultValue="@string/empty"
         android:entries="@array/pref_category_labels"

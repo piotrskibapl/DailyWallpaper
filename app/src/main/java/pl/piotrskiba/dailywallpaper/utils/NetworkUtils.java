@@ -2,6 +2,8 @@ package pl.piotrskiba.dailywallpaper.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
@@ -78,6 +80,23 @@ public class NetworkUtils {
         }
         finally{
             connection.disconnect();
+        }
+    }
+
+    /*
+        get Bitmap from URL
+        source: https://stackoverflow.com/questions/8992964/android-load-from-url-to-bitmap
+    */
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+        } catch (IOException e) {
+            return null;
         }
     }
 

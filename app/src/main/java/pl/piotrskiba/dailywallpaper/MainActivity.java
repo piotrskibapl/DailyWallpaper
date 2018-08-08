@@ -32,6 +32,7 @@ import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
+import pl.piotrskiba.dailywallpaper.utils.AutoChangeUtils;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements ImageListLoadedListener, ImageClickListener {
@@ -195,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         else{
             loadImages();
         }
+
+        AutoChangeUtils.scheduleWallpaperChanger(this);
     }
 
     private void loadImages(){

@@ -10,6 +10,7 @@ import android.support.v7.preference.PreferenceScreen;
 
 import java.util.List;
 
+import pl.piotrskiba.dailywallpaper.utils.AutoChangeUtils;
 import timber.log.Timber;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -48,6 +49,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             if(preference instanceof ListPreference){
                 String value = sharedPreferences.getString(preference.getKey(), "");
                 setPreferenceSummary(preference, value);
+            }
+
+            if(preference.getKey() == getString(R.string.pref_interval_key)){
+                AutoChangeUtils.scheduleWallpaperChanger(getContext());
             }
         }
     }
