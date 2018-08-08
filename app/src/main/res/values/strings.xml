@@ -59,6 +59,29 @@
     <string name="pref_safesearch_summary_off">Disabled</string>
     <string name="pref_safesearch_key" translatable="false">safe_search</string>
 
+    <string name="pref_autowallpaper_title">Automatic wallpaper change</string>
+    <string name="pref_autowallpaper_key" translatable="false">auto_wallpaper_interval</string>
+
+    <string name="pref_category_title">Category for automatic wallpapers</string>
+    <string name="pref_category_key" translatable="false">auto_wallpaper_category</string>
+
+    <string name="pref_interval_label_disabled">Disabled</string>
+    <string name="pref_interval_label_1h">Every 1 hour</string>
+    <string name="pref_interval_label_3h">Every 3 hours</string>
+    <string name="pref_interval_label_6h">Every 6 hours</string>
+    <string name="pref_interval_label_12h">Every 12 hours</string>
+    <string name="pref_interval_label_24h">Every 24 hours</string>
+    <string name="pref_interval_label_15s">Every 15 seconds (for testing purposes only)</string>
+
+    <string name="pref_interval_value_disabled" translatable="false">0</string>
+    <string name="pref_interval_value_1h" translatable="false">3600</string>
+    <string name="pref_interval_value_3h" translatable="false">10800</string>
+    <string name="pref_interval_value_6h" translatable="false">21600</string>
+    <string name="pref_interval_value_12h" translatable="false">43200</string>
+    <string name="pref_interval_value_24h" translatable="false">86400</string>
+    <string name="pref_interval_value_15s" translatable="false">15</string>
+
+
     <string name="set_as_wallpaper">Set as wallpaper</string>
     <string name="setting_wallpaper">Setting wallpaper...</string>
     <string name="wallpaper_set">Wallpaper set!</string>
@@ -70,4 +93,6 @@
     <string name="no_internet">Could not connect to the Internet.\nPlease try again later.</string>
 
     <string name="settings">Settings</string>
+
+    <string name="empty" translatable="false"/>
 </resources>

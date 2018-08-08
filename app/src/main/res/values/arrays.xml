@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_interval_labels">
+        <item>@string/pref_interval_label_disabled</item>
+        <item>@string/pref_interval_label_1h</item>
+        <item>@string/pref_interval_label_3h</item>
+        <item>@string/pref_interval_label_6h</item>
+        <item>@string/pref_interval_label_12h</item>
+        <item>@string/pref_interval_label_24h</item>
+        <item>@string/pref_interval_label_15s</item>
+    </array>
+    <array name="pref_interval_values">
+        <item>@string/pref_interval_value_disabled</item>
+        <item>@string/pref_interval_value_1h</item>
+        <item>@string/pref_interval_value_3h</item>
+        <item>@string/pref_interval_value_6h</item>
+        <item>@string/pref_interval_value_12h</item>
+        <item>@string/pref_interval_value_24h</item>
+        <item>@string/pref_interval_value_15s</item>
+    </array>
+
+    <array name="pref_category_labels">
+        <item>@string/category_all</item>
+        <item>@string/category_fashion</item>
+        <item>@string/category_nature</item>
+        <item>@string/category_backgrounds</item>
+        <item>@string/category_science</item>
+        <item>@string/category_education</item>
+        <item>@string/category_people</item>
+        <item>@string/category_feelings</item>
+        <item>@string/category_religion</item>
+        <item>@string/category_health</item>
+        <item>@string/category_places</item>
+        <item>@string/category_animals</item>
+        <item>@string/category_industry</item>
+        <item>@string/category_food</item>
+        <item>@string/category_computer</item>
+        <item>@string/category_sports</item>
+        <item>@string/category_transportation</item>
+        <item>@string/category_travel</item>
+        <item>@string/category_buildings</item>
+        <item>@string/category_business</item>
+        <item>@string/category_music</item>
+    </array>
+    <array name="pref_category_values">
+        <item>@string/empty</item>
+        <item>@string/key_category_fashion</item>
+        <item>@string/key_category_nature</item>
+        <item>@string/key_category_backgrounds</item>
+        <item>@string/key_category_science</item>
+        <item>@string/key_category_education</item>
+        <item>@string/key_category_people</item>
+        <item>@string/key_category_feelings</item>
+        <item>@string/key_category_religion</item>
+        <item>@string/key_category_health</item>
+        <item>@string/key_category_places</item>
+        <item>@string/key_category_animals</item>
+        <item>@string/key_category_industry</item>
+        <item>@string/key_category_food</item>
+        <item>@string/key_category_computer</item>
+        <item>@string/key_category_sports</item>
+        <item>@string/key_category_transportation</item>
+        <item>@string/key_category_travel</item>
+        <item>@string/key_category_buildings</item>
+        <item>@string/key_category_business</item>
+        <item>@string/key_category_music</item>
+    </array>
+</resources>
