@@ -86,7 +86,7 @@
     <string name="error_setting_wallpaper">Error setting wallpaper!</string>
 
     <string name="set_as_favorite">Mark as favorite</string>
-    <string name="set_as_not_favorite">Mark as not favorite</string>
+    <string name="set_as_not_favorite">Unmark as favorite</string>
 
     <string name="no_internet">Could not connect to the Internet.\nPlease try again later.</string>
 
