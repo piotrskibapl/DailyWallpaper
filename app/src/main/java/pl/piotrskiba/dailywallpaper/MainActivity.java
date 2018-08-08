@@ -196,8 +196,6 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         else{
             loadImages();
         }
-
-        AutoChangeUtils.scheduleWallpaperChanger(this);
     }
 
     private void loadImages(){

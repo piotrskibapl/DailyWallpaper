@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -33,11 +34,14 @@ public class AutoChangeUtils {
         mInterval = interval;
 
         if(mInterval > 0) {
+            dispatcher.cancel(TAG);
+
             Job changeWallpaperJob = dispatcher.newJobBuilder()
                     .setService(AutoWallpaperFirebaseJobService.class)
                     .setTag(TAG)
                     .setLifetime(Lifetime.FOREVER)
                     .setRecurring(true)
+                    .setConstraints(Constraint.ON_ANY_NETWORK)
                     .setTrigger(Trigger.executionWindow(mInterval, mInterval + 300))
                     .setReplaceCurrent(true)
                     .build();
