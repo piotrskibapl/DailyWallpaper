@@ -104,6 +104,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle(null);
 
         // get status bar height
         // source: https://gist.github.com/hamakn/8939eb68a920a6d7a498
