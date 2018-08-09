@@ -7,4 +7,6 @@
     <color name="text">#fff</color>
 
     <color name="details_overlay_color">#8c000000</color>
+
+    <color name="widget_background">#7a000000</color>
 </resources>

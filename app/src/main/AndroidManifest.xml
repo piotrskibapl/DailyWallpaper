@@ -26,13 +26,25 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity"/>
-        <service android:name=".sync.AutoWallpaperFirebaseJobService"
+            android:parentActivityName=".MainActivity" />
+
+        <service
+            android:name=".sync.AutoWallpaperFirebaseJobService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
             </intent-filter>
         </service>
+
+        <receiver android:name=".WallpaperWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wallpaper_widget_provider_info" />
+        </receiver>
     </application>
 
 </manifest>
