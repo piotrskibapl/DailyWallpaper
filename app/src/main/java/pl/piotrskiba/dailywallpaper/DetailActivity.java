@@ -23,7 +23,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -259,13 +258,11 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     @Override
     public void onImageSaved() {
-        Toast.makeText(this,"image saved", Toast.LENGTH_SHORT).show();
         new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
     }
 
     @Override
     public void onImageDeleted() {
-        Toast.makeText(this,"image deleted", Toast.LENGTH_SHORT).show();
         mImageEntry = null;
         invalidateOptionsMenu();
     }
