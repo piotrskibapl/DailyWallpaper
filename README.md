@@ -5,3 +5,5 @@ You should put your Pixabay API key in gradle.properties file, using the followi
 ```
 API_KEY="your_api_key"
 ```
+
+You should also put your google-services.json file in the "app" directory.
