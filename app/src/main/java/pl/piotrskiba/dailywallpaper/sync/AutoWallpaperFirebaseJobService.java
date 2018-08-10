@@ -25,8 +25,8 @@ import pl.piotrskiba.dailywallpaper.models.ImageList;
 
 public class AutoWallpaperFirebaseJobService extends JobService implements ImageListLoadedListener, BitmapLoadedListener, WallpaperSetListener
 {
-    Random rnd = new Random();
-    JobParameters jobParameters;
+    private Random rnd = new Random();
+    private JobParameters jobParameters;
 
     private FetchImagesAsyncTask fetchImagesAsyncTask = new FetchImagesAsyncTask(this, this);
     private GetBitmapFromUrlAsyncTask getBitmapFromUrlAsyncTask = new GetBitmapFromUrlAsyncTask(this);

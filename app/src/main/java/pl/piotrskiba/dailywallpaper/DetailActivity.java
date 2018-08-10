@@ -39,7 +39,6 @@ import pl.piotrskiba.dailywallpaper.database.AppDatabase;
 import pl.piotrskiba.dailywallpaper.database.ImageEntry;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageDeletedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener;
-import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageSavedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
@@ -75,7 +74,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     private boolean hiddenBars = false;
 
-    Snackbar mSnackBar;
+    private Snackbar mSnackBar;
 
     private AppDatabase mDb;
 

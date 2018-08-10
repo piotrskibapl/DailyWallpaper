@@ -1,11 +1,8 @@
 package pl.piotrskiba.dailywallpaper.utils;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +12,6 @@ import java.net.URL;
 import java.util.Scanner;
 
 import pl.piotrskiba.dailywallpaper.BuildConfig;
-import pl.piotrskiba.dailywallpaper.R;
 
 public class NetworkUtils {
 

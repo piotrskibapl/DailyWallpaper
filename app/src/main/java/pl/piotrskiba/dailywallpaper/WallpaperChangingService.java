@@ -23,15 +23,14 @@ import pl.piotrskiba.dailywallpaper.interfaces.BitmapLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
-import timber.log.Timber;
 
 public class WallpaperChangingService extends IntentService implements ImageListLoadedListener, BitmapLoadedListener, WallpaperSetListener {
 
     public static final String ACTION_CHANGE_WALLPAPER = "pl.piotrskiba.dailywallpaper.action.change_wallpaper";
 
-    Random rnd = new Random();
+    private Random rnd = new Random();
 
-    Toast mToast;
+    private Toast mToast;
 
     private static boolean inProgress = false;
 

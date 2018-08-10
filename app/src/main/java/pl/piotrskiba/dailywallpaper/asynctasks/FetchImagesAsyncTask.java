@@ -52,9 +52,7 @@ public class FetchImagesAsyncTask extends AsyncTask<String, Void, ImageList>{
             String json = NetworkUtils.getHttpResponse(url);
 
             Gson gson = new Gson();
-            ImageList imageList = gson.fromJson(json, ImageList.class);
-
-            return imageList;
+            return gson.fromJson(json, ImageList.class);
 
         } catch (IOException e) {
             e.printStackTrace();

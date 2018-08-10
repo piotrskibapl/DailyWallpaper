@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 
-import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener;
 
 public class SetWallpaperAsyncTask extends AsyncTask<Bitmap, Void, Boolean> {
