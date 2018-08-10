@@ -95,4 +95,9 @@
     <string name="empty" translatable="false" />
 
     <string name="change_wallpaper">Change wallpaper</string>
+
+    <!-- content descriptions -->
+    <string name="wallpaper_content_description">wallpaper image</string>
+    <string name="pixabay_logo_content_description">pixabay attribution</string>
+    <string name="widget_image_content_description">change wallpaper button</string>
 </resources>
