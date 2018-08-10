@@ -20,6 +20,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
 
     private String mSelectedCategory = null;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
+
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // setup ButterKnife
         ButterKnife.bind(this);
@@ -179,6 +186,12 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
 
                             if(item.getItemId() != R.id.item_settings)
                                 loadImages();
+
+                            // log event
+                            Bundle bundle = new Bundle();
+                            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mSelectedCategory);
+                            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
+                            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                         }
                         return true;
                     }
@@ -261,6 +274,14 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         switch(item.getItemId()){
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+
+                // log event
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.home");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Home");
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
                 return true;
         }
 
@@ -273,6 +294,12 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         intent.putExtra(KEY_IMAGE, clickedImage);
 
         startActivity(intent);
+
+        // log event
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Wallpaper image");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     private void showDefaultLayout(){

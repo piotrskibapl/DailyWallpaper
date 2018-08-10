@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
@@ -80,10 +81,15 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     private ImageEntry mImageEntry;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         ButterKnife.bind(this);
 
@@ -215,6 +221,13 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
                     mSnackBar.dismiss();
                 mSnackBar = Snackbar.make(mMainView, R.string.setting_wallpaper, Snackbar.LENGTH_LONG);
                 mSnackBar.show();
+
+                // log event
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_set_as_wallpaper");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Set wallpaper");
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
             }
             else{
                 Timber.e("originalBitmap was null while attempting to set a wallpaper");
@@ -233,9 +246,23 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
                     mImage.getUserImageURL(), date);
 
             new SaveImageAsyncTask(mDb, this).execute(imageEntry);
+
+            // log event
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_favorite");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Mark as favorite");
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         }
         else if(item.getItemId() == R.id.action_unfavorite){
             new DeleteImageAsyncTask(mDb, this).execute(mImageEntry);
+
+            // log event
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_unfavorite");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Unmark as favorite");
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         }
 
         return super.onOptionsItemSelected(item);
