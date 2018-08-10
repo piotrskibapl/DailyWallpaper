@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'udacity'
+            keyPassword 'udacity'
+            storeFile file('../keystore/default.jks')
+            storePassword 'udacity'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "pl.piotrskiba.dailywallpaper"
@@ -19,55 +27,44 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:support-v4:27.1.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
     // RecyclerView
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-
     // ButterKnife
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
     // Gson
     implementation 'com.google.code.gson:gson:2.8.5'
-
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
-
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
-
     // required for navigation drawer
     implementation 'com.android.support:design:27.1.1'
-
     // Room
-    implementation "android.arch.persistence.room:runtime:1.1.1"
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
-
     // ViewModel + LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
-
     // Preferences
-    implementation "com.android.support:preference-v7:27.1.1"
-
+    implementation 'com.android.support:preference-v7:27.1.1'
     // FirebaseJobDispatcher
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
-
     // Firebase
     implementation 'com.google.firebase:firebase-core:16.0.1'
-
     // Firebase Crashlytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.4'
 }
