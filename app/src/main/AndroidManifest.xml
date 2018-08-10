@@ -45,6 +45,8 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/wallpaper_widget_provider_info" />
         </receiver>
+
+        <service android:name="pl.piotrskiba.dailywallpaper.WallpaperChangingService" />
     </application>
 
 </manifest>

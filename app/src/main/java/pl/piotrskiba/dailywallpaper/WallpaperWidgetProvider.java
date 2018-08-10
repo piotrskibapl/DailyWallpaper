@@ -1,8 +1,10 @@
 package pl.piotrskiba.dailywallpaper;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
 
 /**
@@ -15,7 +17,16 @@ public class WallpaperWidgetProvider extends AppWidgetProvider {
 
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.wallpaper_widget_provider);
-        //views.setTextViewText(R.id.appwidget_text, widgetText);
+
+        // Add click handler
+        Intent changeWallpaperIntent = new Intent(context, WallpaperChangingService.class);
+        changeWallpaperIntent.setAction(WallpaperChangingService.ACTION_CHANGE_WALLPAPER);
+        PendingIntent wateringPendingIntent = PendingIntent.getService(
+                context,
+                0,
+                changeWallpaperIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.widget_layout, wateringPendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
