@@ -98,4 +98,6 @@
     <string name="wallpaper_content_description">wallpaper image</string>
     <string name="pixabay_logo_content_description">pixabay attribution</string>
     <string name="widget_image_content_description">change wallpaper button</string>
+
+    <string name="image_transition_name">image</string>
 </resources>

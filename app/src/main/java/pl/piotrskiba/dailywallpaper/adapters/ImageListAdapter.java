@@ -71,7 +71,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
         public void onClick(View v) {
             int clickedPos = getAdapterPosition();
             Image image = mImageList.getHits()[clickedPos];
-            clickListener.onImageClick(image);
+            clickListener.onImageClick(image, v);
         }
     }
 

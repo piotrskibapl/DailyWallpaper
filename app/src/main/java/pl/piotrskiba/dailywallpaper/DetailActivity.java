@@ -123,9 +123,16 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
     }
 
     private void populateUi(){
+        Intent parentIntent = getIntent();
+        if(parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
+            Bitmap smallBitmap = parentIntent.getParcelableExtra(MainActivity.KEY_IMAGE_BITMAP);
+            mImageView.setImageBitmap(smallBitmap);
+        }
+
         Timber.d("Loading large image: %s", mImage.getLargeImageURL());
         Picasso.get()
                 .load(mImage.getLargeImageURL())
+                .noPlaceholder()
                 .into(mImageView);
 
         mAuthorTextView.setText(getString(R.string.info_author, mImage.getUser()));

@@ -1,9 +1,14 @@
 package pl.piotrskiba.dailywallpaper;
 
+import android.app.ActivityOptions;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -17,6 +22,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
     private GridLayoutManager layoutManager;
 
     public static final String KEY_IMAGE = "image";
+    public static final String KEY_IMAGE_BITMAP = "image_bitmap";
     public static final String KEY_IMAGE_LIST = "image_list";
 
     private ImageList mImages;
@@ -287,11 +294,29 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
     }
 
     @Override
-    public void onImageClick(Image clickedImage) {
+    public void onImageClick(Image clickedImage, View view) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(KEY_IMAGE, clickedImage);
 
-        startActivity(intent);
+        // scale an image and pass it to DetailActivity for a better animation look
+        ImageView clickedImageView = view.findViewById(R.id.iv_thumbnail);
+        Bitmap originalBitmap = ((BitmapDrawable)clickedImageView.getDrawable()).getBitmap();
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                originalBitmap,
+                originalBitmap.getWidth()/2,
+                originalBitmap.getHeight()/2,
+                false);
+        intent.putExtra(KEY_IMAGE_BITMAP, scaledBitmap);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options = ActivityOptions
+                    .makeSceneTransitionAnimation(this, clickedImageView, getString(R.string.image_transition_name));
+
+            startActivity(intent, options.toBundle());
+        } else {
+            startActivity(intent);
+        }
 
         // log event
         Bundle bundle = new Bundle();
