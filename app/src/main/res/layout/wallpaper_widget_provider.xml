@@ -9,6 +9,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/widget_margin"
         android:src="@drawable/ic_wallpaper"
         android:background="@drawable/widget_background"
         android:contentDescription="@string/widget_image_content_description"/>
