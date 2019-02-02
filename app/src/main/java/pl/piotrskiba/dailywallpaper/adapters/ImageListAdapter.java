@@ -16,13 +16,17 @@ import pl.piotrskiba.dailywallpaper.R;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
 import pl.piotrskiba.dailywallpaper.models.ImageList;
+import pl.piotrskiba.dailywallpaper.utils.BitmapUtils;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ImageViewHolder> {
 
     private ImageList mImageList;
+    private Context context;
     private ImageClickListener clickListener;
+    private boolean isFavorite = false;
 
-    public ImageListAdapter(ImageClickListener clickListener){
+    public ImageListAdapter(Context context, ImageClickListener clickListener){
+        this.context = context;
         this.clickListener = clickListener;
     }
 
@@ -41,9 +45,12 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Image image = mImageList.getHits()[position];
 
-        Picasso.get()
-                .load(image.getWebformatURL())
-                .into(holder.mThumbnail);
+        if(isFavorite)
+            holder.mThumbnail.setImageBitmap(BitmapUtils.loadBitmap(context, image.getWebformatURL()));
+        else
+            Picasso.get()
+                    .load(image.getWebformatURL())
+                    .into(holder.mThumbnail);
     }
 
     @Override
@@ -75,8 +82,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
         }
     }
 
-    public void setData(ImageList imageList){
+    public void setData(ImageList imageList, boolean favorite){
         this.mImageList = imageList;
+        isFavorite = favorite;
         notifyDataSetChanged();
     }
 }

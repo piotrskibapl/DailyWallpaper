@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
         ButterKnife.bind(this);
 
         // setup RecyclerView
-        mImageListAdapter = new ImageListAdapter(this);
+        mImageListAdapter = new ImageListAdapter(this, this);
         mRecyclerView.setAdapter(mImageListAdapter);
         mRecyclerView.setHasFixedSize(true);
 
@@ -263,8 +262,9 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
     public void onImageListLoaded(ImageList result) {
         mImages = result;
         if(mImages != null) {
-            Timber.d("Loaded %d images", mImages.getHits().length);
-            mImageListAdapter.setData(mImages);
+            boolean favorite = mSelectedCategory != null && mSelectedCategory.equals(getString(R.string.key_category_favorite));
+            Timber.d("Loaded %d images (favorite: %b)", mImages.getHits().length, favorite);
+            mImageListAdapter.setData(mImages, favorite);
             layoutManager.scrollToPosition(0);
             showDefaultLayout();
         }

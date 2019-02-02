@@ -32,6 +32,7 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.piotrskiba.dailywallpaper.asynctasks.DeleteImageAsyncTask;
+import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask;
 import pl.piotrskiba.dailywallpaper.asynctasks.LoadImageEntryAsyncTask;
 import pl.piotrskiba.dailywallpaper.asynctasks.SaveImageAsyncTask;
 import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask;
@@ -40,11 +41,13 @@ import pl.piotrskiba.dailywallpaper.database.ImageEntry;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageDeletedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.ImageSavedListener;
+import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener;
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener;
 import pl.piotrskiba.dailywallpaper.models.Image;
+import pl.piotrskiba.dailywallpaper.utils.BitmapUtils;
 import timber.log.Timber;
 
-public class DetailActivity extends AppCompatActivity implements WallpaperSetListener, ImageSavedListener, ImageEntryLoadedListener , ImageDeletedListener{
+public class DetailActivity extends AppCompatActivity implements WallpaperSetListener, ImagesDownloadedListener, ImageSavedListener, ImageEntryLoadedListener , ImageDeletedListener{
 
     Image mImage;
 
@@ -129,16 +132,9 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             mImageView.setImageBitmap(smallBitmap);
         }
 
-        Timber.d("Loading large image: %s", mImage.getLargeImageURL());
-        Picasso.get()
-                .load(mImage.getLargeImageURL())
-                .noPlaceholder()
-                .into(mImageView);
-
         mAuthorTextView.setText(getString(R.string.info_author, mImage.getUser()));
         mDownloadsTextView.setText(getString(R.string.info_downloads, mImage.getDownloads()));
         mViewsTextView.setText(getString(R.string.info_views, mImage.getViews()));
-        Timber.d(getString(R.string.info_views, mImage.getViews()));
     }
 
     private void hideUiElements(){
@@ -242,16 +238,12 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             return true;
         }
         else if(item.getItemId() == R.id.action_favorite){
-            Date date = new Date();
-            ImageEntry imageEntry = new ImageEntry(mImage.getId(), mImage.getPageURL(), mImage.getType(),
-                    mImage.getTags(), mImage.getPreviewURL(), mImage.getPreviewWidth(), mImage.getPreviewHeight(),
-                    mImage.getWebformatURL(), mImage.getWebformatWidth(), mImage.getWebformatHeight(),
-                    mImage.getLargeImageURL(), mImage.getImageWidth(), mImage.getImageHeight(),
-                    mImage.getImageSize(), mImage.getViews(), mImage.getDownloads(), mImage.getFavorites(),
-                    mImage.getLikes(), mImage.getComments(), mImage.getUser_id(), mImage.getUser(),
-                    mImage.getUserImageURL(), date);
 
-            new SaveImageAsyncTask(mDb, this).execute(imageEntry);
+            new DownloadImagesAsyncTask(this, this).execute(
+                    String.valueOf(mImage.getId()),
+                    mImage.getPreviewURL(),
+                    mImage.getWebformatURL(),
+                    mImage.getLargeImageURL());
 
             // log event
             Bundle bundle = new Bundle();
@@ -290,6 +282,25 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
     }
 
     @Override
+    public void onImagesDownloaded() {
+        Date date = new Date();
+
+        String previewUrl = mImage.getId() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION;
+        String webformatUrl = mImage.getId() + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION;
+        String largeImageUrl = mImage.getId() + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION;
+
+        ImageEntry imageEntry = new ImageEntry(mImage.getId(), mImage.getPageURL(), mImage.getType(),
+                mImage.getTags(), previewUrl, mImage.getPreviewWidth(), mImage.getPreviewHeight(),
+                webformatUrl, mImage.getWebformatWidth(), mImage.getWebformatHeight(),
+                largeImageUrl, mImage.getImageWidth(), mImage.getImageHeight(),
+                mImage.getImageSize(), mImage.getViews(), mImage.getDownloads(), mImage.getFavorites(),
+                mImage.getLikes(), mImage.getComments(), mImage.getUser_id(), mImage.getUser(),
+                mImage.getUserImageURL(), date);
+
+        new SaveImageAsyncTask(mDb, this).execute(imageEntry);
+    }
+
+    @Override
     public void onImageSaved() {
         new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
     }
@@ -306,9 +317,16 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
         if(mImageEntry == null){
             Timber.d("image is not favorite");
+            Timber.d("Loading large image: %s", mImage.getLargeImageURL());
+            Picasso.get()
+                    .load(mImage.getLargeImageURL())
+                    .noPlaceholder()
+                    .into(mImageView);
         }
         else{
             Timber.d("image is favorite");
+            Timber.d("Loading large image: %s", mImageEntry.getLargeImageURL());
+            mImageView.setImageBitmap(BitmapUtils.loadBitmap(this, mImageEntry.getLargeImageURL()));
         }
 
         invalidateOptionsMenu();
