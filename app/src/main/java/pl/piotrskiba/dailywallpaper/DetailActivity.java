@@ -182,7 +182,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        if(mImageEntry == null){
+        if(mImageEntry == null && !settingAsFavorite){
             menu.findItem(R.id.action_favorite).setVisible(true);
             menu.findItem(R.id.action_unfavorite).setVisible(false);
         }
@@ -202,6 +202,9 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
         return true;
     }
+
+
+    boolean settingAsFavorite = false;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -238,6 +241,8 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             return true;
         }
         else if(item.getItemId() == R.id.action_favorite){
+            settingAsFavorite = true;
+            invalidateOptionsMenu();
 
             new DownloadImagesAsyncTask(this, this).execute(
                     String.valueOf(mImage.getId()),
@@ -302,6 +307,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     @Override
     public void onImageSaved() {
+        settingAsFavorite = false;
         new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
     }
 
