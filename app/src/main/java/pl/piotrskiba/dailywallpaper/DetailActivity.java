@@ -244,11 +244,19 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             settingAsFavorite = true;
             invalidateOptionsMenu();
 
-            new DownloadImagesAsyncTask(this, this).execute(
-                    String.valueOf(mImage.getId()),
-                    mImage.getPreviewURL(),
-                    mImage.getWebformatURL(),
-                    mImage.getLargeImageURL());
+            String previewUrl = mImage.getId() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION;
+            if(BitmapUtils.loadBitmap(this, previewUrl) != null) {
+                Timber.d("exists");
+                onImagesDownloaded();
+            }
+            else{
+                Timber.d("doesn't exist");
+                new DownloadImagesAsyncTask(this, this).execute(
+                        String.valueOf(mImage.getId()),
+                        mImage.getPreviewURL(),
+                        mImage.getWebformatURL(),
+                        mImage.getLargeImageURL());
+            }
 
             // log event
             Bundle bundle = new Bundle();
@@ -336,5 +344,25 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
         }
 
         invalidateOptionsMenu();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        // delete cached images if the image was unfavorited
+        if(mImageEntry == null && !settingAsFavorite){
+            String previewUrl = mImage.getId() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION;
+            String webformatUrl = mImage.getId() + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION;
+            String largeImageUrl = mImage.getId() + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION;
+
+            if(BitmapUtils.loadBitmap(this, previewUrl) != null){
+                Timber.d("deleting");
+                deleteFile(previewUrl);
+                deleteFile(webformatUrl);
+                deleteFile(largeImageUrl);
+            }
+        }
+
+        super.onDestroy();
     }
 }
