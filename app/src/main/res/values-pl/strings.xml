@@ -38,8 +38,8 @@
     <string name="pref_interval_label_6h">Co 6 godzin</string>
     <string name="pref_interval_label_disabled">Wyłączone</string>
     <string name="pref_interval_title">Automatyczna zmiana tapety</string>
-    <string name="pref_safesearch_summary_off">Wyłączona</string>
-    <string name="pref_safesearch_summary_on">Włączona</string>
+    <string name="pref_safesearch_summary_off">Wyłączony</string>
+    <string name="pref_safesearch_summary_on">Włączony</string>
     <string name="pref_safesearch_title">Filtr SafeSearch</string>
     <string name="set_as_favorite">Oznacz jako ulubione</string>
     <string name="set_as_not_favorite">Oznacz jako nieulubione</string>
