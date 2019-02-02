@@ -295,34 +295,36 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
 
     @Override
     public void onImageClick(Image clickedImage, View view) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(KEY_IMAGE, clickedImage);
-
-        // scale an image and pass it to DetailActivity for a better animation look
         ImageView clickedImageView = view.findViewById(R.id.iv_thumbnail);
-        Bitmap originalBitmap = ((BitmapDrawable)clickedImageView.getDrawable()).getBitmap();
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(
-                originalBitmap,
-                originalBitmap.getWidth()/2,
-                originalBitmap.getHeight()/2,
-                false);
-        intent.putExtra(KEY_IMAGE_BITMAP, scaledBitmap);
+        if(clickedImageView.getDrawable() != null) {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(KEY_IMAGE, clickedImage);
+
+            // scale an image and pass it to DetailActivity for a better animation look
+            Bitmap originalBitmap = ((BitmapDrawable) clickedImageView.getDrawable()).getBitmap();
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                    originalBitmap,
+                    originalBitmap.getWidth() / 2,
+                    originalBitmap.getHeight() / 2,
+                    false);
+            intent.putExtra(KEY_IMAGE_BITMAP, scaledBitmap);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions options = ActivityOptions
-                    .makeSceneTransitionAnimation(this, clickedImageView, getString(R.string.image_transition_name));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation(this, clickedImageView, getString(R.string.image_transition_name));
 
-            startActivity(intent, options.toBundle());
-        } else {
-            startActivity(intent);
+                startActivity(intent, options.toBundle());
+            } else {
+                startActivity(intent);
+            }
+
+            // log event
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Wallpaper image");
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         }
-
-        // log event
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Wallpaper image");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     private void showDefaultLayout(){
