@@ -2,14 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'udacity'
-            keyPassword 'udacity'
-            storeFile file('../keystore/default.jks')
-            storePassword 'udacity'
-        }
-    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "pl.piotrskiba.dailywallpaper"
@@ -27,7 +19,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
         }
     }
 }
