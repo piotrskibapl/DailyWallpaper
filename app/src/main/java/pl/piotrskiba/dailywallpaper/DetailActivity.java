@@ -339,7 +339,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             Intent parentIntent = getIntent();
             if(parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
                 Bitmap smallBitmap = parentIntent.getParcelableExtra(MainActivity.KEY_IMAGE_BITMAP);
-                requestOptions = new RequestOptions().placeholder(new BitmapDrawable(smallBitmap));
+                requestOptions = new RequestOptions().placeholder(new BitmapDrawable(smallBitmap)).dontTransform();
             }
 
             Glide.with(this)
