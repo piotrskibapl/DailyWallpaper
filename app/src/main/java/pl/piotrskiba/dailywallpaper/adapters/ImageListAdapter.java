@@ -8,7 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,8 +49,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
         if(isFavorite)
             holder.mThumbnail.setImageBitmap(BitmapUtils.loadBitmap(context, image.getWebformatURL()));
         else
-            Picasso.get()
+            Glide.with(context)
                     .load(image.getWebformatURL())
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .into(holder.mThumbnail);
     }
 

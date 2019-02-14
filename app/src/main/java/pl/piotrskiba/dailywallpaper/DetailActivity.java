@@ -24,8 +24,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 
@@ -332,9 +333,18 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
         if(mImageEntry == null){
             Timber.d("image is not favorite");
             Timber.d("Loading large image: %s", mImage.getLargeImageURL());
-            Picasso.get()
+
+            RequestOptions requestOptions = new RequestOptions();
+
+            Intent parentIntent = getIntent();
+            if(parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
+                Bitmap smallBitmap = parentIntent.getParcelableExtra(MainActivity.KEY_IMAGE_BITMAP);
+                requestOptions = new RequestOptions().placeholder(new BitmapDrawable(smallBitmap));
+            }
+
+            Glide.with(this)
+                    .setDefaultRequestOptions(requestOptions)
                     .load(mImage.getLargeImageURL())
-                    .noPlaceholder()
                     .into(mImageView);
         }
         else{

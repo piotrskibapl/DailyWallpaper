@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -301,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
             intent.putExtra(KEY_IMAGE, clickedImage);
 
             // scale an image and pass it to DetailActivity for a better animation look
-            Bitmap originalBitmap = ((BitmapDrawable) clickedImageView.getDrawable()).getBitmap();
+            Bitmap originalBitmap = ((BitmapDrawable) ((TransitionDrawable) clickedImageView.getDrawable()).getDrawable(1)).getBitmap();
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(
                     originalBitmap,
                     originalBitmap.getWidth() / 2,
