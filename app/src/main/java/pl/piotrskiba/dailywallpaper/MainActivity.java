@@ -302,7 +302,13 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
             intent.putExtra(KEY_IMAGE, clickedImage);
 
             // scale an image and pass it to DetailActivity for a better animation look
-            Bitmap originalBitmap = ((BitmapDrawable) ((TransitionDrawable) clickedImageView.getDrawable()).getDrawable(1)).getBitmap();
+            Bitmap originalBitmap;
+            if(clickedImageView.getDrawable() instanceof BitmapDrawable){
+                originalBitmap = ((BitmapDrawable) clickedImageView.getDrawable()).getBitmap();
+            }
+            else{
+                originalBitmap = ((BitmapDrawable) ((TransitionDrawable) clickedImageView.getDrawable()).getDrawable(1)).getBitmap();
+            }
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(
                     originalBitmap,
                     originalBitmap.getWidth() / 2,
