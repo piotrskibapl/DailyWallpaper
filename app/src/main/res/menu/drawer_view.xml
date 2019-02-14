@@ -36,11 +36,13 @@
         <item
             android:id="@+id/item_category_science"
             android:icon="@drawable/ic_category_science"
-            android:title="@string/category_science" />
+            android:title="@string/category_science"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_education"
             android:icon="@drawable/ic_category_education"
-            android:title="@string/category_education" />
+            android:title="@string/category_education"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_people"
             android:icon="@drawable/ic_category_people"
@@ -56,7 +58,8 @@
         <item
             android:id="@+id/item_category_health"
             android:icon="@drawable/ic_category_health"
-            android:title="@string/category_health" />
+            android:title="@string/category_health"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_places"
             android:icon="@drawable/ic_category_places"
@@ -68,7 +71,8 @@
         <item
             android:id="@+id/item_category_industry"
             android:icon="@drawable/ic_category_industry"
-            android:title="@string/category_industry" />
+            android:title="@string/category_industry"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_food"
             android:icon="@drawable/ic_category_food"
@@ -76,7 +80,8 @@
         <item
             android:id="@+id/item_category_computer"
             android:icon="@drawable/ic_category_computer"
-            android:title="@string/category_computer" />
+            android:title="@string/category_computer"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_sports"
             android:icon="@drawable/ic_category_sports"
@@ -96,11 +101,13 @@
         <item
             android:id="@+id/item_category_business"
             android:icon="@drawable/ic_category_business"
-            android:title="@string/category_business" />
+            android:title="@string/category_business"
+            android:visible="false" />
         <item
             android:id="@+id/item_category_music"
             android:icon="@drawable/ic_category_music"
-            android:title="@string/category_music" />
+            android:title="@string/category_music"
+            android:visible="false" />
 
     </group>
 </menu>
