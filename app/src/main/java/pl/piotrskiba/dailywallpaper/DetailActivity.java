@@ -276,6 +276,10 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item");
             mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         }
+        else if(item.getItemId() == android.R.id.home){
+            super.onBackPressed();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
