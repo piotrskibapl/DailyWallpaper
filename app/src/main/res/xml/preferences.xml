@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_safesearch_key"
-        android:summaryOff="@string/pref_safesearch_summary_off"
-        android:summaryOn="@string/pref_safesearch_summary_on"
-        android:title="@string/pref_safesearch_title" />
-    <ListPreference
-        android:defaultValue="@string/pref_interval_value_disabled"
-        android:entries="@array/pref_interval_labels"
-        android:entryValues="@array/pref_interval_values"
-        android:key="@string/pref_interval_key"
-        android:title="@string/pref_interval_title" />
-    <ListPreference
-        android:defaultValue="@string/empty"
-        android:entries="@array/pref_category_labels"
-        android:entryValues="@array/pref_category_values"
-        android:key="@string/pref_category_key"
-        android:title="@string/pref_category_title" />
+    <PreferenceCategory
+        android:title="@string/settings">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_safesearch_key"
+            android:summaryOff="@string/pref_safesearch_summary_off"
+            android:summaryOn="@string/pref_safesearch_summary_on"
+            android:title="@string/pref_safesearch_title" />
+        <ListPreference
+            android:defaultValue="@string/pref_interval_value_disabled"
+            android:entries="@array/pref_interval_labels"
+            android:entryValues="@array/pref_interval_values"
+            android:key="@string/pref_interval_key"
+            android:title="@string/pref_interval_title" />
+        <ListPreference
+            android:defaultValue="@string/empty"
+            android:entries="@array/pref_category_labels"
+            android:entryValues="@array/pref_category_values"
+            android:key="@string/pref_category_key"
+            android:title="@string/pref_category_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/others">
+        <Preference
+            android:title="@string/privacy_policy">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://dailywallpaper.piotrskiba.pl/privacy-policy.html" />
+        </Preference>
+    </PreferenceCategory>
 </PreferenceScreen>
