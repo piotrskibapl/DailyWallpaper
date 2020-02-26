@@ -22,6 +22,7 @@ public class BitmapUtils {
             foStream = context.openFileOutput(imageName, Context.MODE_PRIVATE);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, foStream);
             foStream.close();
+            Timber.d("Bitmap saved");
         } catch (Exception e) {
             Timber.d("Could not save an image.");
             e.printStackTrace();
@@ -35,6 +36,7 @@ public class BitmapUtils {
             fiStream = context.openFileInput(imageName);
             bitmap = BitmapFactory.decodeStream(fiStream);
             fiStream.close();
+            Timber.d("Bitmap loaded");
         } catch (Exception e) {
             Timber.d("Could not load an image.");
             e.printStackTrace();

@@ -301,13 +301,14 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     @Override
     public void onImagesDownloaded() {
+        Timber.d("Images downloaded");
         Date date = new Date();
 
         String previewUrl = mImage.getId() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION;
         String webformatUrl = mImage.getId() + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION;
         String largeImageUrl = mImage.getId() + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION;
 
-        ImageEntry imageEntry = new ImageEntry(mImage.getId(), mImage.getPageURL(), mImage.getType(),
+        ImageEntry imageEntry = new ImageEntry(mImage.getId(), -1, mImage.getPageURL(), mImage.getType(),
                 mImage.getTags(), previewUrl, mImage.getPreviewWidth(), mImage.getPreviewHeight(),
                 webformatUrl, mImage.getWebformatWidth(), mImage.getWebformatHeight(),
                 largeImageUrl, mImage.getImageWidth(), mImage.getImageHeight(),
@@ -320,12 +321,14 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
 
     @Override
     public void onImageSaved() {
+        Timber.d("Image saved");
         settingAsFavorite = false;
         new LoadImageEntryAsyncTask(mDb, this).execute(mImage.getId());
     }
 
     @Override
     public void onImageDeleted() {
+        Timber.d("Image deleted");
         mImageEntry = null;
         invalidateOptionsMenu();
     }

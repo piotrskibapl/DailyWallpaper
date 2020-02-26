@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements ImageListLoadedLi
                             imageEntry.getWebformatHeight(), imageEntry.getLargeImageURL(), imageEntry.getImageWidth(),
                             imageEntry.getImageHeight(), imageEntry.getImageSize(), imageEntry.getViews(),
                             imageEntry.getDownloads(), imageEntry.getFavorites(), imageEntry.getLikes(),
-                            imageEntry.getComments(), imageEntry.getUser_id(), imageEntry.getUser(), imageEntry.getUserImageURL());
+                            imageEntry.getComments(), imageEntry.getUserId(), imageEntry.getUser(), imageEntry.getUserImageURL());
                 }
 
                 mFavoriteImages = new ImageList(images.length, images.length, images);
