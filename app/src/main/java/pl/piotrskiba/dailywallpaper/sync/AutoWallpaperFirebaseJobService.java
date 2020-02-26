@@ -71,7 +71,7 @@ public class AutoWallpaperFirebaseJobService extends JobService implements Image
     }
 
     @Override
-    public void onWallpaperSet(Boolean success) {
+    public void onWallpaperSet(boolean success) {
         jobFinished(jobParameters, false);
     }
 

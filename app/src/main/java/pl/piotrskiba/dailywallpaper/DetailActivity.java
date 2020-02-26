@@ -285,7 +285,7 @@ public class DetailActivity extends AppCompatActivity implements WallpaperSetLis
     }
 
     @Override
-    public void onWallpaperSet(Boolean success) {
+    public void onWallpaperSet(boolean success) {
         if(mSnackBar != null)
             mSnackBar.dismiss();
 

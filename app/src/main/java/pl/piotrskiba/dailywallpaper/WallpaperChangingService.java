@@ -118,7 +118,7 @@ public class WallpaperChangingService extends IntentService implements ImageList
     }
 
     @Override
-    public void onWallpaperSet(Boolean success) {
+    public void onWallpaperSet(boolean success) {
         if(mToast != null)
             mToast.cancel();
 
