@@ -9,7 +9,7 @@ import android.graphics.Point;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
