@@ -4,9 +4,11 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
 import android.media.ThumbnailUtils
-import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
@@ -22,18 +24,27 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import pl.piotrskiba.dailywallpaper.asynctasks.*
+import io.reactivex.CompletableObserver
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask
+import pl.piotrskiba.dailywallpaper.asynctasks.LoadImageEntryAsyncTask
+import pl.piotrskiba.dailywallpaper.asynctasks.SaveImageAsyncTask
+import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.database.AppDatabase.Companion.getInstance
 import pl.piotrskiba.dailywallpaper.database.ImageEntry
-import pl.piotrskiba.dailywallpaper.interfaces.*
+import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener
+import pl.piotrskiba.dailywallpaper.interfaces.ImageSavedListener
+import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener
+import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.Image
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils.loadBitmap
 import timber.log.Timber
 import java.util.*
 
-class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener, ImageSavedListener, ImageEntryLoadedListener, ImageDeletedListener {
+class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener, ImageSavedListener, ImageEntryLoadedListener {
     lateinit var mImage: Image
     @JvmField
     @BindView(R.id.main_detail_view)
@@ -192,7 +203,24 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
             mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
         } else if (item.itemId == R.id.action_unfavorite) {
-            DeleteImageAsyncTask(mDb, this).execute(mImageEntry)
+            if(mImageEntry != null) {
+                mDb.imageDao().deleteImage(mImageEntry!!).subscribeOn(Schedulers.io()).subscribe(object: CompletableObserver{
+                    override fun onComplete() {
+                        Timber.d("Image deleted")
+                        mImageEntry = null
+                        invalidateOptionsMenu()
+                    }
+
+                    override fun onSubscribe(d: Disposable?) {
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        Timber.d("Could not delete the image")
+                        e?.printStackTrace()
+                    }
+
+                })
+            }
             // log event
             val bundle = Bundle()
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_unfavorite")
@@ -236,12 +264,6 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
         Timber.d("Image saved")
         settingAsFavorite = false
         LoadImageEntryAsyncTask(mDb, this).execute(mImage.id)
-    }
-
-    override fun onImageDeleted() {
-        Timber.d("Image deleted")
-        mImageEntry = null
-        invalidateOptionsMenu()
     }
 
     override fun onImageEntryLoaded(imageEntry: ImageEntry?) {
