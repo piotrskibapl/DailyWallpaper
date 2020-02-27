@@ -13,8 +13,8 @@ class LoadImageEntryAsyncTask(private val mDb: AppDatabase, private val listener
         val imageEntries = mDb.imageDao().loadImagesByImageId(imageId)
 
         if(imageEntries.isEmpty())
-            return null;
-        return imageEntries[0];
+            return null
+        return imageEntries[0]
     }
 
     override fun onPostExecute(imageEntry: ImageEntry?) {

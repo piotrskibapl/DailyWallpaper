@@ -26,15 +26,13 @@ import butterknife.ButterKnife
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
 import pl.piotrskiba.dailywallpaper.adapters.ImageListAdapter
-import pl.piotrskiba.dailywallpaper.asynctasks.FetchImagesAsyncTask
 import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener
-import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
 import pl.piotrskiba.dailywallpaper.models.Image
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
-class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickListener {
+class MainActivity : AppCompatActivity(), ImageClickListener {
     @BindView(R.id.toolbar)
     lateinit var mToolbar: Toolbar
 
@@ -56,7 +54,6 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
     private var mImageListAdapter: ImageListAdapter? = null
     private var layoutManager: GridLayoutManager? = null
     private lateinit var mImages: ImageList
-    private var mFavoriteImages: ImageList? = null
     private var mSelectedCategory: String? = null
     private var mFirebaseAnalytics: FirebaseAnalytics? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +63,7 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
         if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
         }
+
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
         // setup ButterKnife
@@ -82,9 +80,11 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
         actionBar!!.setDisplayHomeAsUpEnabled(true)
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu)
         // setup Navigation Drawer
-        mNavigationView!!.setNavigationItemSelectedListener { item ->
-            mDrawerLayout!!.closeDrawers()
+        mNavigationView.setNavigationItemSelectedListener { item ->
+            mDrawerLayout.closeDrawers()
             if (!item.isChecked) {
+                removeOldObservers(mSelectedCategory)
+
                 when (item.itemId) {
                     R.id.item_settings -> {
                         val intent = Intent(applicationContext, SettingsActivity::class.java)
@@ -113,7 +113,8 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
                     R.id.item_category_business -> mSelectedCategory = getString(R.string.key_category_business)
                     R.id.item_category_music -> mSelectedCategory = getString(R.string.key_category_music)
                 }
-                if (item.itemId != R.id.item_settings) loadImages()
+                if (item.itemId != R.id.item_settings)
+                    seekForImages()
                 // log event
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mSelectedCategory)
@@ -122,66 +123,89 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
             }
             true
         }
-        setupViewModel()
+
         if (savedInstanceState != null) {
             mSelectedCategory = savedInstanceState.getString(Intent.EXTRA_TEXT)
-            mImages = savedInstanceState.getSerializable(KEY_IMAGE_LIST) as ImageList
-            onImageListLoaded(mImages)
-        } else {
-            loadImages()
         }
+
+        seekForImages()
     }
 
-    private fun loadImages() {
-        showLoadingIndicator()
-        if (mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)) {
-            loadFavoriteImages()
-        } else {
-            FetchImagesAsyncTask(this, this).execute(mSelectedCategory)
-        }
-    }
-
-    private fun loadFavoriteImages() {
-        onImageListLoaded(mFavoriteImages!!)
-    }
-
-    private fun setupViewModel() {
+    fun removeOldObservers(category: String?) {
         val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        viewModel.favoriteImages.observe(this, Observer { imageEntries ->
-            val images = arrayOfNulls<Image>(imageEntries!!.size)
-            for (i in images.indices) {
-                val (_, imageId, pageURL, type, tags, previewURL, previewWidth, previewHeight, webformatURL, webformatWidth, webformatHeight, largeImageURL, imageWidth, imageHeight, imageSize, views, downloads, favorites, likes, comments, userId, user, userImageURL) = imageEntries[i]
-                images[i] = Image(imageId, pageURL, type,
-                        tags, previewURL, previewWidth,
-                        previewHeight, webformatURL, webformatWidth,
-                        webformatHeight, largeImageURL, imageWidth,
-                        imageHeight, imageSize, views,
-                        downloads, favorites, likes,
-                        comments, userId, user, userImageURL)
+
+        when(category){
+            null ->
+                viewModel.getAllImages().removeObservers(this)
+            getString(R.string.key_category_favorite) ->
+                viewModel.favoriteImages.removeObservers(this)
+            else -> {
+                val allCategories = resources.getStringArray(R.array.pref_category_values)
+                val categoryIndex = allCategories.indexOf(category)
+                viewModel.getCategoryImages(categoryIndex).removeObservers(this)
             }
-            mFavoriteImages = ImageList(images.size, images.size, images)
-            if (mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)) loadFavoriteImages()
-        })
+        }
     }
 
-    override fun onImageListLoaded(result: ImageList) {
-        mImages = result
-        if (mImages != null) {
-            val favorite = mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)
-            Timber.d("Loaded %d images (favorite: %b)", mImages.hits.size, favorite)
-            mImageListAdapter!!.setData(mImages, favorite)
-            layoutManager!!.scrollToPosition(0)
-            showDefaultLayout()
+    private fun seekForImages() {
+        showLoadingIndicator()
+        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+
+        if (mSelectedCategory == getString(R.string.key_category_favorite)) {
+            Timber.d("Seeking for favorite images")
+            viewModel.favoriteImages.observe(this, Observer { imageEntries ->
+                Timber.d("Received favorite images update")
+                val images = arrayOfNulls<Image>(imageEntries!!.size)
+                for (i in images.indices) {
+                    val (_, imageId, pageURL, type, tags, previewURL, previewWidth, previewHeight, webformatURL, webformatWidth, webformatHeight, largeImageURL, imageWidth, imageHeight, imageSize, views, downloads, favorites, likes, comments, userId, user, userImageURL) = imageEntries[i]
+                    images[i] = Image(imageId, pageURL, type,
+                            tags, previewURL, previewWidth,
+                            previewHeight, webformatURL, webformatWidth,
+                            webformatHeight, largeImageURL, imageWidth,
+                            imageHeight, imageSize, views,
+                            downloads, favorites, likes,
+                            comments, userId, user, userImageURL)
+                }
+
+                val imageList = ImageList(images.size, images.size, images)
+                populateImageList(imageList)
+            })
         } else {
-            Timber.w("No images loaded!")
-            showNoInternetLayout()
+            mSelectedCategory?.let {
+                Timber.d("Seeking for category images ($mSelectedCategory)")
+                val allCategories = resources.getStringArray(R.array.pref_category_values)
+                val categoryIndex = allCategories.indexOf(mSelectedCategory)
+
+                viewModel.getCategoryImages(categoryIndex).observe(this, Observer { imageList ->
+                    Timber.d("Received category images update")
+                    // check if the category is still the same
+                    if (mSelectedCategory.equals(allCategories[categoryIndex]) && imageList != null)
+                        populateImageList(imageList)
+                })
+            } ?: kotlin.run {
+                Timber.d("Seeking for all images")
+                viewModel.getAllImages().observe(this, Observer { imageList ->
+                    Timber.d("Received all images update")
+                    if(mSelectedCategory == null && imageList != null)
+                        populateImageList(imageList)
+                })
+            }
         }
+    }
+
+    fun populateImageList(imageList: ImageList) {
+        mImages = imageList
+        val favorite = mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)
+        Timber.d("Populating %d images (favorite: %b)", mImages.hits.size, favorite)
+        mImageListAdapter!!.setData(mImages, favorite)
+        layoutManager!!.scrollToPosition(0)
+        showDefaultLayout()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                mDrawerLayout!!.openDrawer(GravityCompat.START)
+                mDrawerLayout.openDrawer(GravityCompat.START)
                 // log event
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.home")
@@ -246,13 +270,11 @@ class MainActivity : AppCompatActivity(), ImageListLoadedListener, ImageClickLis
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(Intent.EXTRA_TEXT, mSelectedCategory)
-        outState.putSerializable(KEY_IMAGE_LIST, mImages)
         super.onSaveInstanceState(outState)
     }
 
     companion object {
         const val KEY_IMAGE = "image"
         const val KEY_IMAGE_BITMAP = "image_bitmap"
-        const val KEY_IMAGE_LIST = "image_list"
     }
 }

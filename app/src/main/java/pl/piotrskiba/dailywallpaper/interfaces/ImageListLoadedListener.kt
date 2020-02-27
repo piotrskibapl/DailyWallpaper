@@ -4,4 +4,5 @@ import pl.piotrskiba.dailywallpaper.models.ImageList
 
 interface ImageListLoadedListener {
     fun onImageListLoaded(result: ImageList)
+    fun onImageListLoadingError()
 }
