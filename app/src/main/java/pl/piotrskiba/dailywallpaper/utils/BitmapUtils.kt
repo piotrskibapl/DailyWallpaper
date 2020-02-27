@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import timber.log.Timber
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
@@ -28,17 +29,24 @@ object BitmapUtils {
 
     @JvmStatic
     fun loadBitmap(context: Context, imageName: String): Bitmap? {
-        var bitmap: Bitmap? = null
-        val fiStream: FileInputStream
-        try {
-            fiStream = context.openFileInput(imageName)
-            bitmap = BitmapFactory.decodeStream(fiStream)
-            fiStream.close()
-            Timber.d("Bitmap loaded")
-        } catch (e: Exception) {
-            Timber.d("Could not load an image.")
-            e.printStackTrace()
+        val file = File(imageName)
+        if(file.isFile && file.canRead()){
+            try {
+                val fiStream: FileInputStream = context.openFileInput(imageName)
+                val bitmap = BitmapFactory.decodeStream(fiStream)
+                fiStream.close()
+                Timber.d("Bitmap loaded successfully")
+                return bitmap
+            }
+            catch(e: java.lang.Exception){
+                Timber.d("Could not load a bitmap")
+                e.printStackTrace()
+            }
         }
-        return bitmap
+        else{
+            Timber.d("Could not load a bitmap - specified imageName doesn't exist or can't read it")
+        }
+
+        return null
     }
 }
