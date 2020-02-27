@@ -29,13 +29,11 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask
 import pl.piotrskiba.dailywallpaper.asynctasks.LoadImageEntryAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.SaveImageAsyncTask
 import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.database.AppDatabase.Companion.getInstance
 import pl.piotrskiba.dailywallpaper.database.ImageEntry
 import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener
-import pl.piotrskiba.dailywallpaper.interfaces.ImageSavedListener
 import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.Image
@@ -44,7 +42,7 @@ import pl.piotrskiba.dailywallpaper.utils.BitmapUtils.loadBitmap
 import timber.log.Timber
 import java.util.*
 
-class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener, ImageSavedListener, ImageEntryLoadedListener {
+class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener, ImageEntryLoadedListener {
     lateinit var mImage: Image
     @JvmField
     @BindView(R.id.main_detail_view)
@@ -257,13 +255,25 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
                 mImage.imageSize, mImage.views, mImage.downloads, mImage.favorites,
                 mImage.likes, mImage.comments, mImage.user_id, mImage.user,
                 mImage.userImageURL, date)
-        SaveImageAsyncTask(mDb, this).execute(imageEntry)
-    }
 
-    override fun onImageSaved() {
-        Timber.d("Image saved")
-        settingAsFavorite = false
-        LoadImageEntryAsyncTask(mDb, this).execute(mImage.id)
+        val imageEntryLoadedListener = this;
+
+        mDb.imageDao().insertImage(imageEntry).subscribeOn(Schedulers.io()).subscribe(object: CompletableObserver{
+            override fun onComplete() {
+                Timber.d("Image saved")
+                settingAsFavorite = false
+                LoadImageEntryAsyncTask(mDb, imageEntryLoadedListener).execute(mImage.id)
+            }
+
+            override fun onSubscribe(d: Disposable?) {
+            }
+
+            override fun onError(e: Throwable?) {
+                Timber.d("Could not save the image")
+                e?.printStackTrace()
+            }
+
+        })
     }
 
     override fun onImageEntryLoaded(imageEntry: ImageEntry?) {
