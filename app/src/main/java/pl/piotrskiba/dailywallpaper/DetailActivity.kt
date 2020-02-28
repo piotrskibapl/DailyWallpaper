@@ -28,19 +28,18 @@ import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask
 import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.database.AppDatabase.Companion.getInstance
 import pl.piotrskiba.dailywallpaper.database.ImageEntry
-import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener
 import pl.piotrskiba.dailywallpaper.models.Image
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils.loadBitmap
+import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
 import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import timber.log.Timber
 import java.util.*
 
-class DetailActivity : AppCompatActivity(), ImagesDownloadedListener {
+class DetailActivity : AppCompatActivity() {
     lateinit var mImage: Image
     @JvmField
     @BindView(R.id.main_detail_view)
@@ -201,13 +200,22 @@ class DetailActivity : AppCompatActivity(), ImagesDownloadedListener {
             val previewUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION
             if (loadBitmap(this, previewUrl) != null) {
                 Timber.d("exists")
-                onImagesDownloaded()
+                saveImagesInTheDatabase();
             } else {
                 Timber.d("doesn't exist")
-                DownloadImagesAsyncTask(this, this).execute(mImage.id.toString(),
-                        mImage.previewURL,
-                        mImage.webformatURL,
-                        mImage.largeImageURL)
+
+                Completable.fromCallable {
+                    val bitmaps = arrayOfNulls<Bitmap>(3)
+                    val imageId = mImage.id.toString()
+                    bitmaps[0] = NetworkUtils.getBitmapFromURL(mImage.previewURL)
+                    bitmaps[1] = NetworkUtils.getBitmapFromURL(mImage.webformatURL)
+                    bitmaps[2] = NetworkUtils.getBitmapFromURL(mImage.largeImageURL)
+                    BitmapUtils.saveBitmap(this, bitmaps[0]!!, imageId + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION)
+                    BitmapUtils.saveBitmap(this, bitmaps[1]!!, imageId + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION)
+                    BitmapUtils.saveBitmap(this, bitmaps[2]!!, imageId + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION)
+
+                    saveImagesInTheDatabase();
+                }.subscribeOn(Schedulers.io()).subscribe()
             }
             // log event
             val bundle = Bundle()
@@ -247,7 +255,7 @@ class DetailActivity : AppCompatActivity(), ImagesDownloadedListener {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onImagesDownloaded() {
+    fun saveImagesInTheDatabase() {
         Timber.d("Images downloaded")
         val date = Date()
         val previewUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION
@@ -260,8 +268,6 @@ class DetailActivity : AppCompatActivity(), ImagesDownloadedListener {
                 mImage.imageSize, mImage.views, mImage.downloads, mImage.favorites,
                 mImage.likes, mImage.comments, mImage.user_id, mImage.user,
                 mImage.userImageURL, date)
-
-        val imageEntryLoadedListener = this;
 
         mDb.imageDao().insertImage(imageEntry).subscribeOn(Schedulers.io()).subscribe(object: CompletableObserver{
             override fun onComplete() {
