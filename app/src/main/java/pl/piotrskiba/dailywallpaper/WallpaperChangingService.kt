@@ -90,9 +90,12 @@ class WallpaperChangingService : IntentService, BitmapLoadedListener {
 
         Completable.fromCallable {
             if(WallpaperUtils.changeWallpaper(context, bitmap)){
-                mToast?.cancel()
-                mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
-                mToast?.show()
+                val mHandler = Handler(mainLooper)
+                mHandler.post {
+                    mToast?.cancel()
+                    mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
+                    mToast?.show()
+                }
                 inProgress = false
             }
         }.subscribeOn(Schedulers.io()).subscribe()
