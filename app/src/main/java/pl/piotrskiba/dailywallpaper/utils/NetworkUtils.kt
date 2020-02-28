@@ -1,65 +1,23 @@
 package pl.piotrskiba.dailywallpaper.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-import pl.piotrskiba.dailywallpaper.BuildConfig
+import androidx.preference.PreferenceManager
+import pl.piotrskiba.dailywallpaper.Constants
+import pl.piotrskiba.dailywallpaper.R
+import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
+import pl.piotrskiba.dailywallpaper.models.ImageList
+import pl.piotrskiba.dailywallpaper.network.PixabayAPIClient
+import pl.piotrskiba.dailywallpaper.network.PixabayAPIInterface
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.MalformedURLException
 import java.net.URL
-import java.util.*
 
 object NetworkUtils {
-    private const val API_KEY = BuildConfig.API_KEY
-    private const val BASE_API_URL = "https://pixabay.com/api/"
-    private const val PARAM_API_KEY = "key"
-    private const val PARAM_ORIENTATION = "orientation"
-    private const val PARAM_CATEGORY = "category"
-    private const val PARAM_EDITORS_CHOICE = "editors_choice"
-    private const val PARAM_SAFE_SEARCH = "safesearch"
-    private const val PARAM_PER_PAGE = "per_page"
-    private const val VALUE_ORIENTATION = "vertical"
-    private const val VALUE_EDITORS_CHOICE = "true"
-    private const val VALUE_PER_PAGE = "200"
-    @JvmStatic
-    fun buildUrl(category: String?, safesearch: Boolean): URL? {
-        val uriBuilder = Uri.parse(BASE_API_URL).buildUpon()
-                .appendQueryParameter(PARAM_API_KEY, API_KEY)
-                .appendQueryParameter(PARAM_ORIENTATION, VALUE_ORIENTATION)
-                .appendQueryParameter(PARAM_EDITORS_CHOICE, VALUE_EDITORS_CHOICE)
-                .appendQueryParameter(PARAM_SAFE_SEARCH, safesearch.toString())
-                .appendQueryParameter(PARAM_PER_PAGE, VALUE_PER_PAGE)
-        if (category != null) {
-            uriBuilder.appendQueryParameter(PARAM_CATEGORY, category)
-        }
-        val uri = uriBuilder.build()
-        var builtUrl: URL? = null
-        try {
-            builtUrl = URL(uri.toString())
-        } catch (e: MalformedURLException) {
-            e.printStackTrace()
-        }
-        return builtUrl
-    }
-
-    @JvmStatic
-    @Throws(IOException::class)
-    fun getHttpResponse(url: URL): String? {
-        val connection = url.openConnection() as HttpURLConnection
-        return try {
-            val icStream = connection.inputStream
-            val scanner = Scanner(icStream)
-            scanner.useDelimiter("\\A")
-            if (scanner.hasNext()) {
-                scanner.next()
-            } else {
-                null
-            }
-        } finally {
-            connection.disconnect()
-        }
-    }
 
     /*
         get Bitmap from URL
@@ -77,5 +35,61 @@ object NetworkUtils {
         } catch (e: IOException) {
             null
         }
+    }
+
+    fun getAllImages(context: Context, listener: ImageListLoadedListener) {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val safesearch = sharedPreferences.getBoolean(context.getString(R.string.pref_safesearch_key), true)
+
+        val api = PixabayAPIClient.retrofit.create(PixabayAPIInterface::class.java)
+        api.loadAllImages(
+                Constants.DEFAULT_VALUE_API_KEY,
+                Constants.DEFAULT_VALUE_ORIENTATION,
+                Constants.DEFAULT_VALUE_EDITORS_CHOICE,
+                safesearch
+        ).enqueue(object: Callback<ImageList> {
+            override fun onFailure(call: Call<ImageList>, t: Throwable) {
+                t.printStackTrace()
+                listener.onImageListLoadingError()
+            }
+
+            override fun onResponse(call: Call<ImageList>, response: Response<ImageList>) {
+                response.body()?.let {
+                    listener.onImageListLoaded(response.body()!!)
+                } ?: kotlin.run {
+                    listener.onImageListLoadingError()
+                }
+            }
+        })
+    }
+
+    fun getCategoryImages(context: Context, category: Int, listener: ImageListLoadedListener) {
+        val allCategories = context.resources.getStringArray(R.array.pref_category_values)
+        val categoryName = allCategories[category]
+
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val safesearch = sharedPreferences.getBoolean(context.getString(R.string.pref_safesearch_key), true)
+
+        val api = PixabayAPIClient.retrofit.create(PixabayAPIInterface::class.java)
+        api.loadCategoryImages(
+                Constants.DEFAULT_VALUE_API_KEY,
+                Constants.DEFAULT_VALUE_ORIENTATION,
+                Constants.DEFAULT_VALUE_EDITORS_CHOICE,
+                safesearch,
+                categoryName
+        ).enqueue(object: Callback<ImageList> {
+            override fun onFailure(call: Call<ImageList>, t: Throwable) {
+                t.printStackTrace()
+                listener.onImageListLoadingError()
+            }
+
+            override fun onResponse(call: Call<ImageList>, response: Response<ImageList>) {
+                response.body()?.let {
+                    listener.onImageListLoaded(response.body()!!)
+                } ?: kotlin.run {
+                    listener.onImageListLoadingError()
+                }
+            }
+        })
     }
 }

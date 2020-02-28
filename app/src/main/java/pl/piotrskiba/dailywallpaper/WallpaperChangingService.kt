@@ -1,25 +1,21 @@
 package pl.piotrskiba.dailywallpaper
 
 import android.app.IntentService
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Point
-import android.media.ThumbnailUtils
 import android.os.Handler
-import android.preference.PreferenceManager
-import android.view.WindowManager
 import android.widget.Toast
-import pl.piotrskiba.dailywallpaper.asynctasks.FetchImagesAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.GetBitmapFromUrlAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
-import pl.piotrskiba.dailywallpaper.interfaces.BitmapLoadedListener
+import androidx.preference.PreferenceManager
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
-import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
+import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
+import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import java.util.*
 
-class WallpaperChangingService : IntentService, ImageListLoadedListener, BitmapLoadedListener, WallpaperSetListener {
+class WallpaperChangingService : IntentService {
     private val rnd = Random()
     private var mToast: Toast? = null
 
@@ -45,10 +41,29 @@ class WallpaperChangingService : IntentService, ImageListLoadedListener, BitmapL
         if (!inProgress) {
             inProgress = true
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
             val category = sharedPreferences.getString(getString(R.string.pref_category_key), "")
-            FetchImagesAsyncTask(this, this).execute(category)
+            val allCategories = resources.getStringArray(R.array.pref_category_values)
+            val categoryIndex = allCategories.indexOf(category)
+
+            NetworkUtils.getCategoryImages(this, categoryIndex, object : ImageListLoadedListener{
+                override fun onImageListLoaded(result: ImageList) {
+                    val max: Int = result.hits.size
+                    val randomInt = rnd.nextInt(max + 1)
+                    val wallpaperURL = result.hits[randomInt]!!.largeImageURL
+
+                    Observable.fromCallable {
+                        adjustAndSetWallpaper(NetworkUtils.getBitmapFromURL(wallpaperURL)!!)
+                    }.subscribeOn(Schedulers.io()).subscribe()
+                }
+
+                override fun onImageListLoadingError() {
+                }
+
+            })
+
             // create a handler to post messages to the main thread
-// source: https://stackoverflow.com/questions/20059188/java-lang-runtimeexception-handler-android-os-handler-sending-message-to-a-ha
+            // source: https://stackoverflow.com/questions/20059188/java-lang-runtimeexception-handler-android-os-handler-sending-message-to-a-ha
             val mHandler = Handler(mainLooper)
             mHandler.post {
                 mToast?.cancel()
@@ -58,37 +73,20 @@ class WallpaperChangingService : IntentService, ImageListLoadedListener, BitmapL
         }
     }
 
-    override fun onImageListLoaded(result: ImageList) {
-        if (result != null) {
-            val max: Int = result.hits.size
-            val randomInt = rnd.nextInt(max + 1)
-            val wallpaperURL = result.hits[randomInt]!!.largeImageURL
-            GetBitmapFromUrlAsyncTask(this).execute(wallpaperURL)
-        } else {
-            inProgress = false
-        }
-    }
+    private fun adjustAndSetWallpaper(loadedBitmap: Bitmap) {
+        val adjustedBitmap = WallpaperUtils.adjustBitmapForWallpaper(this, loadedBitmap)
 
-    override fun onBitmapLoaded(loadedBitmap: Bitmap) {
-        if (loadedBitmap != null) { // get screen dimensions
-            val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val display = wm.defaultDisplay
-            val size = Point()
-            display.getSize(size)
-            // center crop the image
-            val bitmap = ThumbnailUtils.extractThumbnail(loadedBitmap, size.x, size.y)
-            // set image as wallpaper
-            SetWallpaperAsyncTask(this, this).execute(bitmap)
-        } else {
-            inProgress = false
-        }
-    }
-
-    override fun onWallpaperSet(success: Boolean) {
-        mToast?.cancel()
-        mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
-        mToast?.show()
-        inProgress = false
+        Completable.fromCallable {
+            if(WallpaperUtils.changeWallpaper(this, adjustedBitmap)){
+                val mHandler = Handler(mainLooper)
+                mHandler.post {
+                    mToast?.cancel()
+                    mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
+                    mToast?.show()
+                }
+                inProgress = false
+            }
+        }.subscribeOn(Schedulers.io()).subscribe()
     }
 
     companion object {
