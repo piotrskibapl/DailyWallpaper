@@ -8,21 +8,21 @@ import android.preference.PreferenceManager
 import android.view.WindowManager
 import com.firebase.jobdispatcher.JobParameters
 import com.firebase.jobdispatcher.JobService
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.R
 import pl.piotrskiba.dailywallpaper.asynctasks.GetBitmapFromUrlAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.interfaces.BitmapLoadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
-import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
+import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import java.util.*
 
-class AutoWallpaperFirebaseJobService : JobService(), BitmapLoadedListener, WallpaperSetListener {
+class AutoWallpaperFirebaseJobService : JobService(), BitmapLoadedListener {
     private val rnd = Random()
     private var jobParameters: JobParameters? = null
     private val getBitmapFromUrlAsyncTask: GetBitmapFromUrlAsyncTask? = GetBitmapFromUrlAsyncTask(this)
-    private val setWallpaperAsyncTask: SetWallpaperAsyncTask? = SetWallpaperAsyncTask(this, this)
     override fun onStartJob(job: JobParameters): Boolean {
         jobParameters = job
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -55,16 +55,15 @@ class AutoWallpaperFirebaseJobService : JobService(), BitmapLoadedListener, Wall
         // center crop the image
         val bitmap = ThumbnailUtils.extractThumbnail(loadedBitmap, size.x, size.y)
         // set image as wallpaper
-        setWallpaperAsyncTask!!.execute(bitmap)
-    }
-
-    override fun onWallpaperSet(success: Boolean) {
-        jobFinished(jobParameters!!, false)
+        val context = this
+        Completable.fromCallable {
+            WallpaperUtils.changeWallpaper(context, bitmap)
+            jobFinished(jobParameters!!, false)
+        }.subscribeOn(Schedulers.io()).subscribe()
     }
 
     override fun onStopJob(job: JobParameters): Boolean {
         getBitmapFromUrlAsyncTask?.cancel(true)
-        setWallpaperAsyncTask?.cancel(true)
         return true
     }
 }

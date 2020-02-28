@@ -24,23 +24,23 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.database.AppDatabase.Companion.getInstance
 import pl.piotrskiba.dailywallpaper.database.ImageEntry
 import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener
-import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.Image
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils
 import pl.piotrskiba.dailywallpaper.utils.BitmapUtils.loadBitmap
+import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import timber.log.Timber
 import java.util.*
 
-class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener {
+class DetailActivity : AppCompatActivity(), ImagesDownloadedListener {
     lateinit var mImage: Image
     @JvmField
     @BindView(R.id.main_detail_view)
@@ -164,10 +164,27 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
                 // center crop the image
                 val bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, size.x, size.y)
                 // set image as wallpaper
-                SetWallpaperAsyncTask(this, this).execute(bitmap)
-                if (mSnackBar != null) mSnackBar!!.dismiss()
+                val context = this
+
+                mSnackBar?.dismiss()
                 mSnackBar = Snackbar.make(mMainView!!, R.string.setting_wallpaper, Snackbar.LENGTH_LONG)
-                mSnackBar!!.show()
+                mSnackBar?.show()
+
+                Completable.fromCallable {
+                    if(WallpaperUtils.changeWallpaper(context, bitmap)){
+                        mSnackBar?.dismiss()
+
+                        mSnackBar = Snackbar.make(mMainView!!, R.string.wallpaper_set, Snackbar.LENGTH_SHORT)
+                        mSnackBar?.show()
+                    }
+                    else{
+                        mSnackBar?.dismiss()
+
+                        mSnackBar = Snackbar.make(mMainView!!, R.string.error_setting_wallpaper, Snackbar.LENGTH_SHORT)
+                        mSnackBar?.show()
+                    }
+                }.subscribeOn(Schedulers.io()).subscribe()
+
                 // log event
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_set_as_wallpaper")
@@ -228,16 +245,6 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onWallpaperSet(success: Boolean) {
-        if (mSnackBar != null) mSnackBar!!.dismiss()
-        mSnackBar = if (success) {
-            Snackbar.make(mMainView!!, R.string.wallpaper_set, Snackbar.LENGTH_SHORT)
-        } else {
-            Snackbar.make(mMainView!!, R.string.error_setting_wallpaper, Snackbar.LENGTH_SHORT)
-        }
-        mSnackBar!!.show()
     }
 
     override fun onImagesDownloaded() {

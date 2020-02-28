@@ -10,16 +10,17 @@ import android.os.Handler
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.asynctasks.GetBitmapFromUrlAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.interfaces.BitmapLoadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
-import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
+import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import java.util.*
 
-class WallpaperChangingService : IntentService, BitmapLoadedListener, WallpaperSetListener {
+class WallpaperChangingService : IntentService, BitmapLoadedListener {
     private val rnd = Random()
     private var mToast: Toast? = null
 
@@ -85,14 +86,16 @@ class WallpaperChangingService : IntentService, BitmapLoadedListener, WallpaperS
         // center crop the image
         val bitmap = ThumbnailUtils.extractThumbnail(loadedBitmap, size.x, size.y)
         // set image as wallpaper
-        SetWallpaperAsyncTask(this, this).execute(bitmap)
-    }
+        val context = this
 
-    override fun onWallpaperSet(success: Boolean) {
-        mToast?.cancel()
-        mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
-        mToast?.show()
-        inProgress = false
+        Completable.fromCallable {
+            if(WallpaperUtils.changeWallpaper(context, bitmap)){
+                mToast?.cancel()
+                mToast = Toast.makeText(this, getString(R.string.wallpaper_set), Toast.LENGTH_SHORT)
+                mToast?.show()
+                inProgress = false
+            }
+        }.subscribeOn(Schedulers.io()).subscribe()
     }
 
     companion object {
