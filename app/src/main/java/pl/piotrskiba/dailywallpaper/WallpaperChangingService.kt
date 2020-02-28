@@ -1,26 +1,21 @@
 package pl.piotrskiba.dailywallpaper
 
 import android.app.IntentService
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Point
-import android.media.ThumbnailUtils
 import android.os.Handler
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import pl.piotrskiba.dailywallpaper.asynctasks.GetBitmapFromUrlAsyncTask
-import pl.piotrskiba.dailywallpaper.interfaces.BitmapLoadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
 import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
 import java.util.*
 
-class WallpaperChangingService : IntentService, BitmapLoadedListener {
+class WallpaperChangingService : IntentService {
     private val rnd = Random()
     private var mToast: Toast? = null
 
@@ -51,14 +46,15 @@ class WallpaperChangingService : IntentService, BitmapLoadedListener {
             val allCategories = resources.getStringArray(R.array.pref_category_values)
             val categoryIndex = allCategories.indexOf(category)
 
-            val bitmapLoadedListener: BitmapLoadedListener = this
-
             NetworkUtils.getCategoryImages(this, categoryIndex, object : ImageListLoadedListener{
                 override fun onImageListLoaded(result: ImageList) {
                     val max: Int = result.hits.size
                     val randomInt = rnd.nextInt(max + 1)
                     val wallpaperURL = result.hits[randomInt]!!.largeImageURL
-                    GetBitmapFromUrlAsyncTask(bitmapLoadedListener).execute(wallpaperURL)
+
+                    Observable.fromCallable {
+                        adjustAndSetWallpaper(NetworkUtils.getBitmapFromURL(wallpaperURL)!!)
+                    }.subscribeOn(Schedulers.io()).subscribe()
                 }
 
                 override fun onImageListLoadingError() {
@@ -77,19 +73,11 @@ class WallpaperChangingService : IntentService, BitmapLoadedListener {
         }
     }
 
-    override fun onBitmapLoaded(loadedBitmap: Bitmap) {
-        // get screen dimensions
-        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = wm.defaultDisplay
-        val size = Point()
-        display.getSize(size)
-        // center crop the image
-        val bitmap = ThumbnailUtils.extractThumbnail(loadedBitmap, size.x, size.y)
-        // set image as wallpaper
-        val context = this
+    private fun adjustAndSetWallpaper(loadedBitmap: Bitmap) {
+        val adjustedBitmap = WallpaperUtils.adjustBitmapForWallpaper(this, loadedBitmap)
 
         Completable.fromCallable {
-            if(WallpaperUtils.changeWallpaper(context, bitmap)){
+            if(WallpaperUtils.changeWallpaper(this, adjustedBitmap)){
                 val mHandler = Handler(mainLooper)
                 mHandler.post {
                     mToast?.cancel()
