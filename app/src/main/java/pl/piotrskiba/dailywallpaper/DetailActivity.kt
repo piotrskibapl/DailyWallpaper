@@ -261,7 +261,7 @@ class DetailActivity : AppCompatActivity() {
         val previewUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION
         val webformatUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION
         val largeImageUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION
-        val imageEntry = ImageEntry(mImage.id, -1, mImage.pageURL, mImage.type,
+        val imageEntry = ImageEntry(mImage.id, mImage.id, mImage.pageURL, mImage.type,
                 mImage.tags, previewUrl, mImage.previewWidth, mImage.previewHeight,
                 webformatUrl, mImage.webformatWidth, mImage.webformatHeight,
                 largeImageUrl, mImage.imageWidth, mImage.imageHeight,

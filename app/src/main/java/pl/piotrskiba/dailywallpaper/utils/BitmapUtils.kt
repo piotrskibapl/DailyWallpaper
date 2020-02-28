@@ -20,9 +20,9 @@ object BitmapUtils {
             foStream = context.openFileOutput(imageName, Context.MODE_PRIVATE)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, foStream)
             foStream.close()
-            Timber.d("Bitmap saved")
+            Timber.d("Saved bitmap \"$imageName\"")
         } catch (e: Exception) {
-            Timber.d("Could not save an image.")
+            Timber.d("Could not save a bitmap (\"$imageName\")")
             e.printStackTrace()
         }
     }
@@ -35,16 +35,16 @@ object BitmapUtils {
                 val fiStream: FileInputStream = context.openFileInput(imageName)
                 val bitmap = BitmapFactory.decodeStream(fiStream)
                 fiStream.close()
-                Timber.d("Bitmap loaded successfully")
+                Timber.d("Bitmap \"$imageName\" loaded successfully")
                 return bitmap
             }
             catch(e: java.lang.Exception){
-                Timber.d("Could not load a bitmap")
+                Timber.d("Could not load a bitmap (\"$imageName\")")
                 e.printStackTrace()
             }
         }
         else{
-            Timber.d("Could not load a bitmap - specified imageName doesn't exist or can't read it")
+            Timber.d("Could not load a bitmap - \"$imageName\" doesn't exist or can't read it")
         }
 
         return null
