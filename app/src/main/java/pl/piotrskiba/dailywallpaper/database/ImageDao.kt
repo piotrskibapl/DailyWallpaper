@@ -13,7 +13,7 @@ interface ImageDao {
     fun loadAllImages(): LiveData<List<ImageEntry>>
 
     @Query("SELECT * FROM image WHERE imageId = :imageId")
-    fun loadImagesByImageId(imageId: Int): List<ImageEntry>
+    fun loadImagesByImageId(imageId: Int): LiveData<List<ImageEntry>>
 
     @Insert
     fun insertImage(imageEntry: ImageEntry): Completable

@@ -28,12 +28,10 @@ import io.reactivex.CompletableObserver
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import pl.piotrskiba.dailywallpaper.asynctasks.DownloadImagesAsyncTask
-import pl.piotrskiba.dailywallpaper.asynctasks.LoadImageEntryAsyncTask
 import pl.piotrskiba.dailywallpaper.asynctasks.SetWallpaperAsyncTask
 import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.database.AppDatabase.Companion.getInstance
 import pl.piotrskiba.dailywallpaper.database.ImageEntry
-import pl.piotrskiba.dailywallpaper.interfaces.ImageEntryLoadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.ImagesDownloadedListener
 import pl.piotrskiba.dailywallpaper.interfaces.WallpaperSetListener
 import pl.piotrskiba.dailywallpaper.models.Image
@@ -42,7 +40,7 @@ import pl.piotrskiba.dailywallpaper.utils.BitmapUtils.loadBitmap
 import timber.log.Timber
 import java.util.*
 
-class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener, ImageEntryLoadedListener {
+class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownloadedListener {
     lateinit var mImage: Image
     @JvmField
     @BindView(R.id.main_detail_view)
@@ -86,7 +84,7 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
             populateUi()
         }
         // load image entry from db
-        LoadImageEntryAsyncTask(mDb, this).execute(mImage.id)
+        seekForDatabaseImage()
         // setup Toolbar
         setSupportActionBar(mToolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -262,7 +260,6 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
             override fun onComplete() {
                 Timber.d("Image saved")
                 settingAsFavorite = false
-                LoadImageEntryAsyncTask(mDb, imageEntryLoadedListener).execute(mImage.id)
             }
 
             override fun onSubscribe(d: Disposable?) {
@@ -276,27 +273,36 @@ class DetailActivity : AppCompatActivity(), WallpaperSetListener, ImagesDownload
         })
     }
 
-    override fun onImageEntryLoaded(imageEntry: ImageEntry?) {
-        mImageEntry = imageEntry
-        if (mImageEntry == null) {
-            Timber.d("image is not favorite")
-            Timber.d("Loading large image: %s", mImage.largeImageURL)
-            var requestOptions = RequestOptions()
-            val parentIntent = intent
-            if (parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
-                val smallBitmap = parentIntent.getParcelableExtra<Bitmap>(MainActivity.KEY_IMAGE_BITMAP)
-                requestOptions = RequestOptions().placeholder(BitmapDrawable(smallBitmap)).dontTransform()
+    private fun seekForDatabaseImage(){
+        val context = this
+
+        mDb.imageDao().loadImagesByImageId(mImage.id).observe(this, androidx.lifecycle.Observer {
+            mImageEntry = if(it.isNotEmpty())
+                it[0]
+            else
+                null
+
+            mImageEntry?.run {
+                Timber.d("image is favorite")
+                Timber.d("Loading large image: %s", mImageEntry!!.largeImageURL)
+                mImageView!!.setImageBitmap(loadBitmap(context, mImageEntry!!.largeImageURL))
+            } ?: run {
+                Timber.d("image is not favorite")
+                Timber.d("Loading large image: %s", mImage.largeImageURL)
+                var requestOptions = RequestOptions()
+                val parentIntent = intent
+                if (parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
+                    val smallBitmap = parentIntent.getParcelableExtra<Bitmap>(MainActivity.KEY_IMAGE_BITMAP)
+                    requestOptions = RequestOptions().placeholder(BitmapDrawable(smallBitmap)).dontTransform()
+                }
+                Glide.with(this)
+                        .setDefaultRequestOptions(requestOptions)
+                        .load(mImage.largeImageURL)
+                        .into(mImageView!!)
             }
-            Glide.with(this)
-                    .setDefaultRequestOptions(requestOptions)
-                    .load(mImage.largeImageURL)
-                    .into(mImageView!!)
-        } else {
-            Timber.d("image is favorite")
-            Timber.d("Loading large image: %s", mImageEntry!!.largeImageURL)
-            mImageView!!.setImageBitmap(loadBitmap(this, mImageEntry!!.largeImageURL))
-        }
-        invalidateOptionsMenu()
+
+            invalidateOptionsMenu()
+        })
     }
 
     override fun onDestroy() { // delete cached images if the image was unfavorited
