@@ -11,9 +11,30 @@ import android.widget.RemoteViews
  * Implementation of App Widget functionality.
  */
 class WallpaperWidgetProvider : AppWidgetProvider() {
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) { // There may be multiple widgets active, so update all of them
+
+    private var remoteViews: RemoteViews? = null
+
+    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+
+        // Construct the RemoteViews object
+        remoteViews ?: kotlin.run {
+            // Add click handler
+            val changeWallpaperIntent = Intent(context, WallpaperWidgetProvider::class.java)
+            changeWallpaperIntent.action = WallpaperChangingService.ACTION_CHANGE_WALLPAPER
+
+            val changeWallpaperPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    changeWallpaperIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+
+            remoteViews = RemoteViews(context.packageName, R.layout.wallpaper_widget_provider)
+            remoteViews!!.setOnClickPendingIntent(R.id.widget_layout, changeWallpaperPendingIntent)
+        }
+
+        // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
         }
     }
 
@@ -23,21 +44,11 @@ class WallpaperWidgetProvider : AppWidgetProvider() {
     override fun onDisabled(context: Context) { // Enter relevant functionality for when the last widget is disabled
     }
 
-    companion object {
-        fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager,
-                            appWidgetId: Int) { // Construct the RemoteViews object
-            val views = RemoteViews(context.packageName, R.layout.wallpaper_widget_provider)
-            // Add click handler
-            val changeWallpaperIntent = Intent(context, WallpaperChangingService::class.java)
-            changeWallpaperIntent.action = WallpaperChangingService.ACTION_CHANGE_WALLPAPER
-            val wateringPendingIntent = PendingIntent.getService(
-                    context,
-                    0,
-                    changeWallpaperIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT)
-            views.setOnClickPendingIntent(R.id.widget_layout, wateringPendingIntent)
-            // Instruct the widget manager to update the widget
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+    override fun onReceive(context: Context?, intent: Intent?) {
+        super.onReceive(context, intent)
+
+        if (intent?.action.equals(WallpaperChangingService.ACTION_CHANGE_WALLPAPER)) {
+            WallpaperChangingService().enqueue(context)
         }
     }
 }

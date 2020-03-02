@@ -1,10 +1,11 @@
 package pl.piotrskiba.dailywallpaper
 
-import android.app.IntentService
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Handler
 import android.widget.Toast
+import androidx.core.app.JobIntentService
 import androidx.preference.PreferenceManager
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -13,27 +14,33 @@ import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
 import pl.piotrskiba.dailywallpaper.utils.WallpaperUtils
+import timber.log.Timber
 import java.util.*
 
-class WallpaperChangingService : IntentService {
+class WallpaperChangingService : JobIntentService() {
     private val rnd = Random()
     private var mToast: Toast? = null
 
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    constructor(name: String?) : super(name) {}
+    override fun onHandleWork(intent: Intent) {
+        val action = intent.action
+        Timber.d("Received intent with action %s", action)
+        if (action == ACTION_CHANGE_WALLPAPER) {
+            Timber.d("Received wallpaper change request")
+            handleActionChangeWallpaper()
+        }
+    }
 
-    constructor() : super("WallpaperChangingService") {}
+    fun enqueue(context: Context?){
+        context?.run {
+            val intent = Intent(this, WallpaperChangingService::class.java)
+            intent.action = ACTION_CHANGE_WALLPAPER
 
-    override fun onHandleIntent(intent: Intent?) {
-        if (intent != null) {
-            val action = intent.action
-            if (action == ACTION_CHANGE_WALLPAPER) {
-                handleActionChangeWallpaper()
-            }
+            enqueueWork(
+                    context,
+                    WallpaperChangingService::class.java,
+                    0,
+                    intent
+            )
         }
     }
 
