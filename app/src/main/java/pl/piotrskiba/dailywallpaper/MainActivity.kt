@@ -26,6 +26,7 @@ import butterknife.ButterKnife
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
 import pl.piotrskiba.dailywallpaper.adapters.ImageListAdapter
+import pl.piotrskiba.dailywallpaper.database.AppDatabase
 import pl.piotrskiba.dailywallpaper.interfaces.ImageClickListener
 import pl.piotrskiba.dailywallpaper.models.Image
 import pl.piotrskiba.dailywallpaper.models.ImageList
@@ -127,6 +128,10 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         if (savedInstanceState != null) {
             mSelectedCategory = savedInstanceState.getString(Intent.EXTRA_TEXT)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         seekForImages()
     }
@@ -137,8 +142,10 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         when(category){
             null ->
                 viewModel.getAllImages().removeObservers(this)
-            getString(R.string.key_category_favorite) ->
-                viewModel.favoriteImages.removeObservers(this)
+            getString(R.string.key_category_favorite) -> {
+                val database = AppDatabase.getInstance(this)
+                database.imageDao().loadAllImages().removeObservers(this)
+            }
             else -> {
                 val allCategories = resources.getStringArray(R.array.pref_category_values)
                 val categoryIndex = allCategories.indexOf(category)
@@ -153,7 +160,8 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
 
         if (mSelectedCategory == getString(R.string.key_category_favorite)) {
             Timber.d("Seeking for favorite images")
-            viewModel.favoriteImages.observe(this, Observer { imageEntries ->
+            val database = AppDatabase.getInstance(this)
+            database.imageDao().loadAllImages().observe(this, Observer { imageEntries ->
                 Timber.d("Received favorite images update")
                 val images = arrayOfNulls<Image>(imageEntries!!.size)
                 for (i in images.indices) {

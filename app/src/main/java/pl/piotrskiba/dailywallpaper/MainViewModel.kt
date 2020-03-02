@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import pl.piotrskiba.dailywallpaper.database.AppDatabase
-import pl.piotrskiba.dailywallpaper.database.ImageEntry
 import pl.piotrskiba.dailywallpaper.interfaces.ImageListLoadedListener
 import pl.piotrskiba.dailywallpaper.models.ImageList
 import pl.piotrskiba.dailywallpaper.utils.NetworkUtils
@@ -22,11 +20,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repeat(allCategories.size) {
             categoryImages.add(null)
         }
-    }
-
-    val favoriteImages: LiveData<List<ImageEntry>> by lazy {
-        val database = AppDatabase.getInstance(context)
-        database.imageDao().loadAllImages()
     }
 
     fun getAllImages(): LiveData<ImageList> {
