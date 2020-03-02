@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         seekForImages()
     }
 
-    fun removeOldObservers(category: String?) {
+    private fun removeOldObservers(category: String?) {
         val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
         when(category){
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         }
     }
 
-    fun populateImageList(imageList: ImageList) {
+    private fun populateImageList(imageList: ImageList) {
         mImages = imageList
         val favorite = mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)
         Timber.d("Populating %d images (favorite: %b)", mImages.hits.size, favorite)
@@ -232,8 +232,7 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
             val intent = Intent(this, DetailActivity::class.java)
             intent.putExtra(KEY_IMAGE, clickedImage)
             // scale an image and pass it to DetailActivity for a better animation look
-            val originalBitmap: Bitmap
-            originalBitmap = if (clickedImageView.drawable is BitmapDrawable) {
+            val originalBitmap: Bitmap = if (clickedImageView.drawable is BitmapDrawable) {
                 (clickedImageView.drawable as BitmapDrawable).bitmap
             } else {
                 ((clickedImageView.drawable as TransitionDrawable).getDrawable(1) as BitmapDrawable).bitmap
