@@ -44,11 +44,11 @@
     <string name="set_as_favorite">Oznacz jako ulubione</string>
     <string name="set_as_not_favorite">Oznacz jako nieulubione</string>
     <string name="set_as_wallpaper">Ustaw tapetę</string>
-    <string name="setting_wallpaper">Ustawianie tapety…</string>
+    <string name="setting_wallpaper">Zmienianie tapety…</string>
     <string name="settings">Ustawienia</string>
     <string name="others">Inne</string>
     <string name="privacy_policy">Polityka prywatności</string>
     <string name="wallpaper_content_description">obraz tapety</string>
-    <string name="wallpaper_set">Tapeta ustawiona!</string>
+    <string name="wallpaper_set">Tapeta zmieniona!</string>
     <string name="widget_image_content_description">przycisk zmiany tapety</string>
 </resources>
