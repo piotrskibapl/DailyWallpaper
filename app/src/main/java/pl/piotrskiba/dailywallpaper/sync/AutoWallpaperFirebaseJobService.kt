@@ -1,7 +1,7 @@
 package pl.piotrskiba.dailywallpaper.sync
 
 import android.graphics.Bitmap
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.firebase.jobdispatcher.JobParameters
 import com.firebase.jobdispatcher.JobService
 import io.reactivex.Completable

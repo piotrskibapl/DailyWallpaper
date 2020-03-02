@@ -1,7 +1,7 @@
 package pl.piotrskiba.dailywallpaper.utils
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.firebase.jobdispatcher.*
 import pl.piotrskiba.dailywallpaper.R
 import pl.piotrskiba.dailywallpaper.sync.AutoWallpaperFirebaseJobService
