@@ -290,6 +290,7 @@ class DetailActivity : AppCompatActivity() {
         })
     }
 
+    private var imageLoaded = false
     private fun seekForDatabaseImage(){
         val context = this
 
@@ -299,23 +300,27 @@ class DetailActivity : AppCompatActivity() {
             else
                 null
 
-            mImageEntry?.run {
-                Timber.d("image is favorite")
-                Timber.d("Loading large image: %s", mImageEntry!!.largeImageURL)
-                mImageView!!.setImageBitmap(loadBitmap(context, mImageEntry!!.largeImageURL))
-            } ?: run {
-                Timber.d("image is not favorite")
-                Timber.d("Loading large image: %s", mImage.largeImageURL)
-                var requestOptions = RequestOptions()
-                val parentIntent = intent
-                if (parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
-                    val smallBitmap = parentIntent.getParcelableExtra<Bitmap>(MainActivity.KEY_IMAGE_BITMAP)
-                    requestOptions = RequestOptions().placeholder(BitmapDrawable(smallBitmap)).dontTransform()
+            if(!imageLoaded) {
+                mImageEntry?.run {
+                    Timber.d("image is favorite")
+                    Timber.d("Loading large image: %s", mImageEntry!!.largeImageURL)
+                    mImageView!!.setImageBitmap(loadBitmap(context, mImageEntry!!.largeImageURL))
+                } ?: run {
+                    Timber.d("image is not favorite")
+                    Timber.d("Loading large image: %s", mImage.largeImageURL)
+                    var requestOptions = RequestOptions()
+                    val parentIntent = intent
+                    if (parentIntent.hasExtra(MainActivity.KEY_IMAGE_BITMAP)) {
+                        val smallBitmap = parentIntent.getParcelableExtra<Bitmap>(MainActivity.KEY_IMAGE_BITMAP)
+                        requestOptions = RequestOptions().placeholder(BitmapDrawable(smallBitmap)).dontTransform()
+                    }
+                    Glide.with(this)
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(mImage.largeImageURL)
+                            .into(mImageView!!)
                 }
-                Glide.with(this)
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(mImage.largeImageURL)
-                        .into(mImageView!!)
+
+                imageLoaded = true
             }
 
             invalidateOptionsMenu()
