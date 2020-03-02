@@ -1,9 +1,7 @@
 package pl.piotrskiba.dailywallpaper
 
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
-import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -73,29 +71,37 @@ class DetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
+
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
         ButterKnife.bind(this)
+
         mDb = getInstance(this)
+
         val parentIntent = intent
         if (parentIntent.hasExtra(MainActivity.KEY_IMAGE)) {
             mImage = parentIntent.getSerializableExtra(MainActivity.KEY_IMAGE) as Image
             populateUi()
         }
+
         // load image entry from db
         seekForDatabaseImage()
+
         // setup Toolbar
         setSupportActionBar(mToolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowHomeEnabled(true)
         supportActionBar!!.title = null
+
         // get status bar height
-// source: https://gist.github.com/hamakn/8939eb68a920a6d7a498
+        // source: https://gist.github.com/hamakn/8939eb68a920a6d7a498
         var statusBarHeight = 0
         val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
         if (resourceId > 0) {
             statusBarHeight = resources.getDimensionPixelSize(resourceId)
         }
+
         // set toolbar padding to be under status bar
         mToolbarContainer!!.setPadding(0, statusBarHeight, 0, 0)
     }
@@ -130,7 +136,10 @@ class DetailActivity : AppCompatActivity() {
     }
 
     fun onImageClick(view: View?) {
-        if (hiddenBars) showUiElements() else hideUiElements()
+        if (hiddenBars)
+            showUiElements()
+        else
+            hideUiElements()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
@@ -155,101 +164,14 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_set_as_wallpaper -> {
-                if (mImageView!!.drawable != null) {
-                    val originalBitmap = (mImageView!!.drawable as BitmapDrawable).bitmap
-                    // get screen dimensions
-                    val display = windowManager.defaultDisplay
-                    val size = Point()
-                    display.getSize(size)
-                    // center crop the image
-                    val bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, size.x, size.y)
-                    // set image as wallpaper
-                    val context = this
-
-                    mSnackBar?.dismiss()
-                    mSnackBar = Snackbar.make(mMainView!!, R.string.setting_wallpaper, Snackbar.LENGTH_LONG)
-                    mSnackBar?.show()
-
-                    Completable.fromCallable {
-                        if(WallpaperUtils.changeWallpaper(context, bitmap)){
-                            mSnackBar?.dismiss()
-
-                            mSnackBar = Snackbar.make(mMainView!!, R.string.wallpaper_set, Snackbar.LENGTH_SHORT)
-                            mSnackBar?.show()
-                        } else{
-                            mSnackBar?.dismiss()
-
-                            mSnackBar = Snackbar.make(mMainView!!, R.string.error_setting_wallpaper, Snackbar.LENGTH_SHORT)
-                            mSnackBar?.show()
-                        }
-                    }.subscribeOn(Schedulers.io()).subscribe()
-
-                    // log event
-                    val bundle = Bundle()
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_set_as_wallpaper")
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Set wallpaper")
-                    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
-                    mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                } else {
-                    Timber.e("originalBitmap was null while attempting to set a wallpaper")
-                }
+                setWallpaper()
                 return true
             }
             R.id.action_favorite -> {
-                settingAsFavorite = true
-                invalidateOptionsMenu()
-                val previewUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION
-                if (loadBitmap(this, previewUrl) != null) {
-                    Timber.d("exists")
-                    saveImagesInTheDatabase()
-                } else {
-                    Timber.d("doesn't exist")
-
-                    Completable.fromCallable {
-                        val bitmaps = arrayOfNulls<Bitmap>(3)
-                        val imageId = mImage.id.toString()
-                        bitmaps[0] = NetworkUtils.getBitmapFromURL(mImage.previewURL)
-                        bitmaps[1] = NetworkUtils.getBitmapFromURL(mImage.webformatURL)
-                        bitmaps[2] = NetworkUtils.getBitmapFromURL(mImage.largeImageURL)
-                        BitmapUtils.saveBitmap(this, bitmaps[0]!!, imageId + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION)
-                        BitmapUtils.saveBitmap(this, bitmaps[1]!!, imageId + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION)
-                        BitmapUtils.saveBitmap(this, bitmaps[2]!!, imageId + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION)
-
-                        saveImagesInTheDatabase()
-                    }.subscribeOn(Schedulers.io()).subscribe()
-                }
-                // log event
-                val bundle = Bundle()
-                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_favorite")
-                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Mark as favorite")
-                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
-                mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                setAsFavorite()
             }
             R.id.action_unfavorite -> {
-                if(mImageEntry != null) {
-                    mDb.imageDao().deleteImage(mImageEntry!!).subscribeOn(Schedulers.io()).subscribe(object: CompletableObserver{
-                        override fun onComplete() {
-                            Timber.d("Image deleted")
-                            mImageEntry = null
-                            invalidateOptionsMenu()
-                        }
-
-                        override fun onSubscribe(d: Disposable?) {
-                        }
-
-                        override fun onError(e: Throwable?) {
-                            Timber.d("Could not delete the image")
-                            e?.printStackTrace()
-                        }
-
-                    })
-                }
-                // log event
-                val bundle = Bundle()
-                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_unfavorite")
-                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Unmark as favorite")
-                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
-                mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                unsetAsFavorite()
             }
             android.R.id.home -> {
                 super.onBackPressed()
@@ -257,6 +179,100 @@ class DetailActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun setWallpaper() {
+        if (mImageView!!.drawable != null) {
+            val originalBitmap = (mImageView!!.drawable as BitmapDrawable).bitmap
+            val adjustedBitmap = WallpaperUtils.adjustBitmapForWallpaper(this, originalBitmap)
+
+            mSnackBar?.dismiss()
+            mSnackBar = Snackbar.make(mMainView!!, R.string.setting_wallpaper, Snackbar.LENGTH_LONG)
+            mSnackBar?.show()
+
+            // set image as wallpaper
+            val context = this
+            Completable.fromCallable {
+                if(WallpaperUtils.changeWallpaper(context, adjustedBitmap)){
+                    mSnackBar?.dismiss()
+
+                    mSnackBar = Snackbar.make(mMainView!!, R.string.wallpaper_set, Snackbar.LENGTH_SHORT)
+                    mSnackBar?.show()
+                } else{
+                    mSnackBar?.dismiss()
+
+                    mSnackBar = Snackbar.make(mMainView!!, R.string.error_setting_wallpaper, Snackbar.LENGTH_SHORT)
+                    mSnackBar?.show()
+                }
+            }.subscribeOn(Schedulers.io()).subscribe()
+
+            // log event
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_set_as_wallpaper")
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Set wallpaper")
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
+            mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+        } else {
+            Timber.e("originalBitmap was null while attempting to set a wallpaper")
+        }
+    }
+
+    private fun setAsFavorite() {
+        settingAsFavorite = true
+        invalidateOptionsMenu()
+        val previewUrl: String = mImage.id.toString() + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION
+        if (loadBitmap(this, previewUrl) != null) {
+            Timber.d("exists")
+            saveImagesInTheDatabase()
+        } else {
+            Timber.d("doesn't exist")
+
+            Completable.fromCallable {
+                val bitmaps = arrayOfNulls<Bitmap>(3)
+                val imageId = mImage.id.toString()
+                bitmaps[0] = NetworkUtils.getBitmapFromURL(mImage.previewURL)
+                bitmaps[1] = NetworkUtils.getBitmapFromURL(mImage.webformatURL)
+                bitmaps[2] = NetworkUtils.getBitmapFromURL(mImage.largeImageURL)
+                BitmapUtils.saveBitmap(this, bitmaps[0]!!, imageId + BitmapUtils.SUFFIX_PREVIEW + BitmapUtils.IMAGE_EXTENSION)
+                BitmapUtils.saveBitmap(this, bitmaps[1]!!, imageId + BitmapUtils.SUFFIX_WEBFORMAT + BitmapUtils.IMAGE_EXTENSION)
+                BitmapUtils.saveBitmap(this, bitmaps[2]!!, imageId + BitmapUtils.SUFFIX_LARGEIMAGE + BitmapUtils.IMAGE_EXTENSION)
+
+                saveImagesInTheDatabase()
+            }.subscribeOn(Schedulers.io()).subscribe()
+        }
+        // log event
+        val bundle = Bundle()
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_favorite")
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Mark as favorite")
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
+        mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+    }
+
+    private fun unsetAsFavorite() {
+        if(mImageEntry != null) {
+            mDb.imageDao().deleteImage(mImageEntry!!).subscribeOn(Schedulers.io()).subscribe(object: CompletableObserver{
+                override fun onComplete() {
+                    Timber.d("Image deleted")
+                    mImageEntry = null
+                    invalidateOptionsMenu()
+                }
+
+                override fun onSubscribe(d: Disposable?) {
+                }
+
+                override fun onError(e: Throwable?) {
+                    Timber.d("Could not delete the image")
+                    e?.printStackTrace()
+                }
+
+            })
+        }
+        // log event
+        val bundle = Bundle()
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "android.R.id.action_unfavorite")
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Unmark as favorite")
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "menu item")
+        mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
     }
 
     private fun saveImagesInTheDatabase() {
