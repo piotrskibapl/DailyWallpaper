@@ -114,8 +114,10 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
                     R.id.item_category_business -> mSelectedCategory = getString(R.string.key_category_business)
                     R.id.item_category_music -> mSelectedCategory = getString(R.string.key_category_music)
                 }
-                if (item.itemId != R.id.item_settings)
+                if (item.itemId != R.id.item_settings) {
                     seekForImages()
+                    layoutManager!!.scrollToPosition(0)
+                }
                 // log event
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mSelectedCategory)
@@ -128,12 +130,17 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         if (savedInstanceState != null) {
             mSelectedCategory = savedInstanceState.getString(Intent.EXTRA_TEXT)
         }
+        seekForImages()
     }
 
     override fun onResume() {
         super.onResume()
 
-        seekForImages()
+        // favorite images aren't updated when there are changes in the database, so update it manually
+        if(mSelectedCategory.equals(getString(R.string.key_category_favorite))) {
+            removeOldObservers(mSelectedCategory)
+            seekForImages()
+        }
     }
 
     private fun removeOldObservers(category: String?) {
@@ -206,7 +213,6 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
         val favorite = mSelectedCategory != null && mSelectedCategory == getString(R.string.key_category_favorite)
         Timber.d("Populating %d images (favorite: %b)", mImages.hits.size, favorite)
         mImageListAdapter!!.setData(mImages, favorite)
-        layoutManager!!.scrollToPosition(0)
         showDefaultLayout()
     }
 
