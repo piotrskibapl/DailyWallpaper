@@ -9,7 +9,8 @@ import androidx.preference.PreferenceFragmentCompat
 import pl.piotrskiba.dailywallpaper.utils.AutoChangeUtils.scheduleWallpaperChanger
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences)
         val preferenceScreen = preferenceScreen
         val sharedPreferences = preferenceScreen.sharedPreferences
@@ -47,6 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
