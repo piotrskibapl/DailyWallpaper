@@ -12,13 +12,13 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
     }
 
     private fun removeOldObservers(category: String?) {
-        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val viewModel: MainViewModel by viewModels()
 
         when(category){
             null ->
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), ImageClickListener {
 
     private fun seekForImages() {
         showLoadingIndicator()
-        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val viewModel: MainViewModel by viewModels()
 
         if (mSelectedCategory == getString(R.string.key_category_favorite)) {
             Timber.d("Seeking for favorite images")
