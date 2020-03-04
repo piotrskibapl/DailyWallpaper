@@ -52,7 +52,7 @@ dependencies {
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
     // Glide
-    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.8.0'
     // required for navigation drawer
     implementation 'com.google.android.material:material:1.1.0'
@@ -68,7 +68,7 @@ dependencies {
     // FirebaseJobDispatcher
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     // Firebase
-    implementation 'com.google.firebase:firebase-core:17.2.2'
+    implementation 'com.google.firebase:firebase-core:17.2.3'
     // Firebase Crashlytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
